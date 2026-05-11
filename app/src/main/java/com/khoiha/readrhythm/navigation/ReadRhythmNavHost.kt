@@ -1,0 +1,71 @@
+package com.khoiha.readrhythm.navigation
+
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import com.khoiha.readrhythm.ui.insights.InsightsScreen
+import com.khoiha.readrhythm.ui.library.LibraryScreen
+import com.khoiha.readrhythm.ui.sessions.SessionsScreen
+
+@Composable
+fun ReadRhythmNavHost() {
+    val navController = rememberNavController()
+    val backStackEntry = navController.currentBackStackEntryAsState()
+    val currentDestination = backStackEntry.value?.destination
+
+    Scaffold(
+        bottomBar = {
+            NavigationBar {
+                bottomNavigationRoutes.forEach { destination ->
+                    val selected = currentDestination
+                        ?.hierarchy
+                        ?.any { it.route == destination.route } == true
+
+                    NavigationBarItem(
+                        selected = selected,
+                        onClick = {
+                            navController.navigate(destination.route) {
+                                popUpTo(navController.graph.startDestinationId) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        },
+                        icon = {
+                            Text(text = destination.shortLabel)
+                        },
+                        label = {
+                            Text(text = destination.label)
+                        }
+                    )
+                }
+            }
+        }
+    ) { innerPadding ->
+        NavHost(
+            navController = navController,
+            startDestination = ReadRhythmRoute.Library.route,
+            modifier = Modifier.padding(innerPadding)
+        ) {
+            composable(ReadRhythmRoute.Library.route) {
+                LibraryScreen()
+            }
+            composable(ReadRhythmRoute.Sessions.route) {
+                SessionsScreen()
+            }
+            composable(ReadRhythmRoute.Insights.route) {
+                InsightsScreen()
+            }
+        }
+    }
+}
