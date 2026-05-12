@@ -10,4 +10,8 @@ class ReadingRepository(
     fun observeBooks(): Flow<List<BookEntity>> {
         return readingDao.observeBooks()
     }
+
+    suspend fun insertBook(book: BookEntity): Long {
+        return readingDao.insertBook(book)
+    }
 }

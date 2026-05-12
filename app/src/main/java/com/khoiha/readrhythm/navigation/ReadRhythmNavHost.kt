@@ -70,7 +70,10 @@ fun ReadRhythmNavHost(
                 )
                 val uiState by viewModel.uiState.collectAsState()
 
-                LibraryScreen(uiState = uiState)
+                LibraryScreen(
+                    uiState = uiState,
+                    onAddBook = viewModel::addBook
+                )
             }
             composable(ReadRhythmRoute.Sessions.route) {
                 SessionsScreen()

@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.khoiha.readrhythm.data.ReadingRepository
+import com.khoiha.readrhythm.data.local.BookEntity
+import com.khoiha.readrhythm.data.local.ReadingFormat
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
@@ -32,11 +34,56 @@ class LibraryViewModel(
                     }
                 }
                 .collect { books ->
-                    _uiState.value = LibraryUiState(
-                        isLoading = false,
-                        books = books
-                    )
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            books = books,
+                            errorMessage = null
+                        )
+                    }
                 }
+        }
+    }
+
+    fun addBook(
+        title: String,
+        author: String?,
+        format: ReadingFormat,
+        totalUnits: Int
+    ) {
+        val trimmedTitle = title.trim()
+        if (trimmedTitle.isEmpty()) {
+            _uiState.update {
+                it.copy(errorMessage = "Title is required.")
+            }
+            return
+        }
+
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(isSaving = true, errorMessage = null)
+            }
+
+            try {
+                readingRepository.insertBook(
+                    BookEntity(
+                        title = trimmedTitle,
+                        author = author?.trim()?.takeIf { it.isNotEmpty() },
+                        format = format,
+                        progress = 0,
+                        totalUnits = totalUnits.coerceAtLeast(0),
+                        createdAt = System.currentTimeMillis()
+                    )
+                )
+            } catch (error: Exception) {
+                _uiState.update {
+                    it.copy(errorMessage = error.message ?: "Could not save this book.")
+                }
+            } finally {
+                _uiState.update {
+                    it.copy(isSaving = false)
+                }
+            }
         }
     }
 
