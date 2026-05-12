@@ -25,7 +25,7 @@ class ReadingRepository(
     }
 
     suspend fun addSession(session: ReadingSessionEntity): Long {
-        return readingDao.insertSession(session)
+        return readingDao.insertSessionAndUpdateProgress(session)
     }
 
     suspend fun deleteBook(book: BookEntity) {
