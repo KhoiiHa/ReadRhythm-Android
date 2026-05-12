@@ -31,6 +31,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.khoiha.readrhythm.data.local.BookEntity
+import com.khoiha.readrhythm.data.local.ReadingFormat
 import com.khoiha.readrhythm.data.local.ReadingSessionEntity
 import com.khoiha.readrhythm.ui.components.ReadRhythmEmptyState
 import java.text.DateFormat
@@ -97,6 +98,16 @@ private fun BookDetailContent(
     } else {
         0f
     }
+    val progressText = if (hasProgressTarget) {
+        "${book.progress.coerceAtLeast(0)} / ${book.totalUnits} ${unitLabel(book)}"
+    } else {
+        "${book.progress.coerceAtLeast(0)} ${unitLabel(book)} tracked"
+    }
+    val percentText = if (hasProgressTarget) {
+        "${(progress * 100).toInt()}% complete"
+    } else {
+        "No target yet"
+    }
 
     Column(
         modifier = Modifier
@@ -152,9 +163,9 @@ private fun BookDetailContent(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
-                DetailInfoRow(label = "Format", value = book.format.name.lowercase().replaceFirstChar { it.uppercase() })
-                DetailInfoRow(label = "Progress", value = book.progress.toString())
-                DetailInfoRow(label = "Total units", value = if (hasProgressTarget) book.totalUnits.toString() else "No target yet")
+                DetailInfoRow(label = "Format", value = formatLabel(book))
+                DetailInfoRow(label = "Progress", value = progressText)
+                DetailInfoRow(label = "Completion", value = percentText)
                 DetailInfoRow(label = "Created", value = formatDate(book.createdAt))
 
                 if (hasProgressTarget) {
@@ -181,7 +192,10 @@ private fun BookDetailContent(
             shape = MaterialTheme.shapes.large,
             color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
         ) {
-            SessionsSection(sessions = sessions)
+            SessionsSection(
+                sessions = sessions,
+                book = book
+            )
         }
     }
 
@@ -222,7 +236,8 @@ private fun DetailInfoRow(
 
 @Composable
 private fun SessionsSection(
-    sessions: List<ReadingSessionEntity>
+    sessions: List<ReadingSessionEntity>,
+    book: BookEntity
 ) {
     Column(
         modifier = Modifier.padding(20.dp),
@@ -243,7 +258,10 @@ private fun SessionsSection(
             )
         } else {
             sessions.forEach { session ->
-                SessionRow(session = session)
+                SessionRow(
+                    session = session,
+                    book = book
+                )
             }
         }
     }
@@ -251,8 +269,15 @@ private fun SessionsSection(
 
 @Composable
 private fun SessionRow(
-    session: ReadingSessionEntity
+    session: ReadingSessionEntity,
+    book: BookEntity
 ) {
+    val progressText = if (session.progressAmount > 0) {
+        "+${session.progressAmount} ${sessionProgressUnitLabel(book)}"
+    } else {
+        "No progress added"
+    }
+
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.medium,
@@ -280,9 +305,13 @@ private fun SessionRow(
             }
 
             Text(
-                text = "+${session.progressAmount}",
+                text = progressText,
                 style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.primary,
+                color = if (session.progressAmount > 0) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                },
                 fontWeight = FontWeight.Medium
             )
         }
@@ -329,6 +358,7 @@ private fun AddSessionDialog(
                     onValueChange = { progressText = it.filter(Char::isDigit) },
                     modifier = Modifier.fillMaxWidth(),
                     label = { Text("Progress optional") },
+                    supportingText = { Text("Pages for books, minutes for audiobooks") },
                     singleLine = true,
                     enabled = !isSaving,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
@@ -361,4 +391,25 @@ private fun AddSessionDialog(
 
 private fun formatDate(timestamp: Long): String {
     return DateFormat.getDateInstance(DateFormat.MEDIUM).format(Date(timestamp))
+}
+
+private fun formatLabel(book: BookEntity): String {
+    return when (book.format) {
+        ReadingFormat.BOOK -> "Book"
+        ReadingFormat.AUDIOBOOK -> "Audiobook"
+    }
+}
+
+private fun unitLabel(book: BookEntity): String {
+    return when (book.format) {
+        ReadingFormat.BOOK -> "pages"
+        ReadingFormat.AUDIOBOOK -> "min"
+    }
+}
+
+private fun sessionProgressUnitLabel(book: BookEntity): String {
+    return when (book.format) {
+        ReadingFormat.BOOK -> "pages"
+        ReadingFormat.AUDIOBOOK -> "min progress"
+    }
 }

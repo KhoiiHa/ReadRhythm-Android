@@ -166,7 +166,12 @@ private fun LibraryBookRow(
         0f
     }
     val progressLabel = if (hasProgressTarget) {
-        "${book.progress.coerceAtLeast(0)}/${book.totalUnits}"
+        "${book.progress.coerceAtLeast(0)} / ${book.totalUnits} ${unitLabel(book)}"
+    } else {
+        "${book.progress.coerceAtLeast(0)} ${unitLabel(book)} tracked"
+    }
+    val percentLabel = if (hasProgressTarget) {
+        "${(progress * 100).toInt()}% complete"
     } else {
         "No target yet"
     }
@@ -230,11 +235,17 @@ private fun LibraryBookRow(
                         fontWeight = FontWeight.Medium
                     )
                     Text(
-                        text = progressLabel,
+                        text = percentLabel,
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
+
+                Text(
+                    text = progressLabel,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
 
                 if (hasProgressTarget) {
                     LinearProgressIndicator(
@@ -245,7 +256,7 @@ private fun LibraryBookRow(
                     )
                 } else {
                     Text(
-                        text = "Add a target later to track progress.",
+                        text = "Add a target later to see completion.",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -352,4 +363,11 @@ private fun AddBookDialog(
             }
         }
     )
+}
+
+private fun unitLabel(book: BookEntity): String {
+    return when (book.format) {
+        ReadingFormat.BOOK -> "pages"
+        ReadingFormat.AUDIOBOOK -> "min"
+    }
 }
