@@ -13,6 +13,9 @@ interface ReadingDao {
     @Query("SELECT * FROM books ORDER BY createdAt DESC")
     fun observeBooks(): Flow<List<BookEntity>>
 
+    @Query("SELECT * FROM books WHERE id = :bookId LIMIT 1")
+    fun observeBook(bookId: Long): Flow<BookEntity?>
+
     @Query("SELECT * FROM reading_sessions WHERE bookId = :bookId ORDER BY createdAt DESC")
     fun observeSessionsForBook(bookId: Long): Flow<List<ReadingSessionEntity>>
 

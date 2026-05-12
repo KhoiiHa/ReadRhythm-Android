@@ -22,6 +22,15 @@ sealed class ReadRhythmRoute(
         label = "Insights",
         shortLabel = "I"
     )
+
+    data object BookDetail {
+        const val bookIdArg = "bookId"
+        const val route = "book/{$bookIdArg}"
+
+        fun createRoute(bookId: Long): String {
+            return "book/$bookId"
+        }
+    }
 }
 
 val bottomNavigationRoutes = listOf(

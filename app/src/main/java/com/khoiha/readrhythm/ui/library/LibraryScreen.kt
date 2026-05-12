@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -42,7 +44,8 @@ import com.khoiha.readrhythm.ui.components.ReadRhythmEmptyState
 fun LibraryScreen(
     uiState: LibraryUiState,
     onAddBook: (title: String, author: String?, format: ReadingFormat, totalUnits: Int) -> Unit,
-    onDeleteBook: (BookEntity) -> Unit
+    onDeleteBook: (BookEntity) -> Unit,
+    onBookClick: (BookEntity) -> Unit
 ) {
     var showAddBookDialog by rememberSaveable { mutableStateOf(false) }
 
@@ -62,7 +65,8 @@ fun LibraryScreen(
             else -> {
                 LibraryContentState(
                     books = uiState.books,
-                    onDeleteBook = onDeleteBook
+                    onDeleteBook = onDeleteBook,
+                    onBookClick = onBookClick
                 )
             }
         }
@@ -123,7 +127,8 @@ private fun LibraryErrorState(message: String) {
 @Composable
 private fun LibraryContentState(
     books: List<BookEntity>,
-    onDeleteBook: (BookEntity) -> Unit
+    onDeleteBook: (BookEntity) -> Unit,
+    onBookClick: (BookEntity) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -141,7 +146,8 @@ private fun LibraryContentState(
         ) { book ->
             LibraryBookRow(
                 book = book,
-                onDeleteBook = onDeleteBook
+                onDeleteBook = onDeleteBook,
+                onBookClick = onBookClick
             )
         }
     }
@@ -150,7 +156,8 @@ private fun LibraryContentState(
 @Composable
 private fun LibraryBookRow(
     book: BookEntity,
-    onDeleteBook: (BookEntity) -> Unit
+    onDeleteBook: (BookEntity) -> Unit,
+    onBookClick: (BookEntity) -> Unit
 ) {
     val hasProgressTarget = book.totalUnits > 0
     val progress = if (hasProgressTarget) {
@@ -164,11 +171,14 @@ private fun LibraryBookRow(
         "No target yet"
     }
 
-    Surface(
+    Card(
+        onClick = { onBookClick(book) },
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.large,
-        color = MaterialTheme.colorScheme.surface,
-        tonalElevation = 1.dp
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Column(
             modifier = Modifier.padding(18.dp),
