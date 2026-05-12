@@ -14,4 +14,8 @@ class ReadingRepository(
     suspend fun insertBook(book: BookEntity): Long {
         return readingDao.insertBook(book)
     }
+
+    suspend fun deleteBook(book: BookEntity) {
+        readingDao.deleteBook(book)
+    }
 }

@@ -87,6 +87,18 @@ class LibraryViewModel(
         }
     }
 
+    fun deleteBook(book: BookEntity) {
+        viewModelScope.launch {
+            try {
+                readingRepository.deleteBook(book)
+            } catch (error: Exception) {
+                _uiState.update {
+                    it.copy(errorMessage = error.message ?: "Could not delete this book.")
+                }
+            }
+        }
+    }
+
     class Factory(
         private val readingRepository: ReadingRepository
     ) : ViewModelProvider.Factory {

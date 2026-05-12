@@ -72,7 +72,8 @@ fun ReadRhythmNavHost(
 
                 LibraryScreen(
                     uiState = uiState,
-                    onAddBook = viewModel::addBook
+                    onAddBook = viewModel::addBook,
+                    onDeleteBook = viewModel::deleteBook
                 )
             }
             composable(ReadRhythmRoute.Sessions.route) {

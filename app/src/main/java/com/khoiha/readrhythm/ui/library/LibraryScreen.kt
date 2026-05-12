@@ -5,9 +5,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
@@ -39,7 +41,8 @@ import com.khoiha.readrhythm.ui.components.ReadRhythmEmptyState
 @Composable
 fun LibraryScreen(
     uiState: LibraryUiState,
-    onAddBook: (title: String, author: String?, format: ReadingFormat, totalUnits: Int) -> Unit
+    onAddBook: (title: String, author: String?, format: ReadingFormat, totalUnits: Int) -> Unit,
+    onDeleteBook: (BookEntity) -> Unit
 ) {
     var showAddBookDialog by rememberSaveable { mutableStateOf(false) }
 
@@ -56,7 +59,12 @@ fun LibraryScreen(
                     message = "Add books and audiobooks here later to keep your current rhythm in one calm place."
                 )
             }
-            else -> LibraryContentState(books = uiState.books)
+            else -> {
+                LibraryContentState(
+                    books = uiState.books,
+                    onDeleteBook = onDeleteBook
+                )
+            }
         }
 
         FloatingActionButton(
@@ -114,73 +122,124 @@ private fun LibraryErrorState(message: String) {
 
 @Composable
 private fun LibraryContentState(
-    books: List<BookEntity>
+    books: List<BookEntity>,
+    onDeleteBook: (BookEntity) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
+        contentPadding = PaddingValues(
+            start = 16.dp,
+            top = 16.dp,
+            end = 16.dp,
+            bottom = 96.dp
+        ),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         items(
             items = books,
             key = { book -> book.id }
         ) { book ->
-            LibraryBookRow(book = book)
+            LibraryBookRow(
+                book = book,
+                onDeleteBook = onDeleteBook
+            )
         }
     }
 }
 
 @Composable
 private fun LibraryBookRow(
-    book: BookEntity
+    book: BookEntity,
+    onDeleteBook: (BookEntity) -> Unit
 ) {
+    val hasProgressTarget = book.totalUnits > 0
+    val progress = if (hasProgressTarget) {
+        (book.progress.toFloat() / book.totalUnits).coerceIn(0f, 1f)
+    } else {
+        0f
+    }
+    val progressLabel = if (hasProgressTarget) {
+        "${book.progress.coerceAtLeast(0)}/${book.totalUnits}"
+    } else {
+        "No target yet"
+    }
+
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.medium,
-        color = MaterialTheme.colorScheme.surface
+        shape = MaterialTheme.shapes.large,
+        color = MaterialTheme.colorScheme.surface,
+        tonalElevation = 1.dp
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            modifier = Modifier.padding(18.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            Text(
-                text = book.title,
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-                fontWeight = FontWeight.SemiBold
-            )
-
-            Text(
-                text = book.author ?: "Unknown author",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-
-            LinearProgressIndicator(
-                progress = {
-                    if (book.totalUnits == 0) {
-                        0f
-                    } else {
-                        (book.progress.toFloat() / book.totalUnits).coerceIn(0f, 1f)
-                    }
-                },
-                modifier = Modifier.fillMaxWidth()
-            )
-
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                verticalAlignment = Alignment.Top
             ) {
-                Text(
-                    text = book.format.name.lowercase().replaceFirstChar { it.uppercase() },
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.primary
-                )
-                Text(
-                    text = "${book.progress}/${book.totalUnits}",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(
+                        text = book.title,
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.SemiBold
+                    )
+
+                    Text(
+                        text = book.author ?: "Unknown author",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(12.dp))
+
+                TextButton(
+                    onClick = { onDeleteBook(book) }
+                ) {
+                    Text("Delete")
+                }
+            }
+
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = book.format.name.lowercase().replaceFirstChar { it.uppercase() },
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = progressLabel,
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                if (hasProgressTarget) {
+                    LinearProgressIndicator(
+                        progress = { progress },
+                        modifier = Modifier.fillMaxWidth(),
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.75f),
+                        trackColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                } else {
+                    Text(
+                        text = "Add a target later to track progress.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
         }
     }
