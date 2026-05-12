@@ -21,6 +21,7 @@ import com.khoiha.readrhythm.data.ReadingRepository
 import com.khoiha.readrhythm.ui.bookdetail.BookDetailScreen
 import com.khoiha.readrhythm.ui.bookdetail.BookDetailViewModel
 import com.khoiha.readrhythm.ui.insights.InsightsScreen
+import com.khoiha.readrhythm.ui.insights.InsightsViewModel
 import com.khoiha.readrhythm.ui.library.LibraryScreen
 import com.khoiha.readrhythm.ui.library.LibraryViewModel
 import com.khoiha.readrhythm.ui.sessions.SessionsScreen
@@ -87,7 +88,12 @@ fun ReadRhythmNavHost(
                 SessionsScreen()
             }
             composable(ReadRhythmRoute.Insights.route) {
-                InsightsScreen()
+                val viewModel: InsightsViewModel = viewModel(
+                    factory = InsightsViewModel.Factory(readingRepository)
+                )
+                val uiState by viewModel.uiState.collectAsState()
+
+                InsightsScreen(uiState = uiState)
             }
             composable(
                 route = ReadRhythmRoute.BookDetail.route,

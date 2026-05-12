@@ -3,6 +3,7 @@ package com.khoiha.readrhythm.data
 import com.khoiha.readrhythm.data.local.BookEntity
 import com.khoiha.readrhythm.data.local.ReadingDao
 import com.khoiha.readrhythm.data.local.ReadingSessionEntity
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.Flow
 
 class ReadingRepository(
@@ -20,6 +21,22 @@ class ReadingRepository(
         return readingDao.observeSessionsForBook(bookId)
     }
 
+    fun observeInsights(): Flow<InsightsSummary> {
+        return combine(
+            readingDao.observeTotalMinutes(),
+            readingDao.observeTotalSessions(),
+            readingDao.observeActiveTitles(),
+            readingDao.observeCompletedTitles()
+        ) { totalMinutes, totalSessions, activeTitles, completedTitles ->
+            InsightsSummary(
+                totalMinutes = totalMinutes,
+                totalSessions = totalSessions,
+                activeTitles = activeTitles,
+                completedTitles = completedTitles
+            )
+        }
+    }
+
     suspend fun insertBook(book: BookEntity): Long {
         return readingDao.insertBook(book)
     }
@@ -32,3 +49,10 @@ class ReadingRepository(
         readingDao.deleteBook(book)
     }
 }
+
+data class InsightsSummary(
+    val totalMinutes: Int,
+    val totalSessions: Int,
+    val activeTitles: Int,
+    val completedTitles: Int
+)

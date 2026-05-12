@@ -23,6 +23,18 @@ interface ReadingDao {
     @Query("SELECT * FROM reading_sessions WHERE bookId = :bookId ORDER BY createdAt DESC")
     fun observeSessionsForBook(bookId: Long): Flow<List<ReadingSessionEntity>>
 
+    @Query("SELECT COALESCE(SUM(minutes), 0) FROM reading_sessions")
+    fun observeTotalMinutes(): Flow<Int>
+
+    @Query("SELECT COUNT(*) FROM reading_sessions")
+    fun observeTotalSessions(): Flow<Int>
+
+    @Query("SELECT COUNT(*) FROM books WHERE totalUnits = 0 OR progress < totalUnits")
+    fun observeActiveTitles(): Flow<Int>
+
+    @Query("SELECT COUNT(*) FROM books WHERE totalUnits > 0 AND progress >= totalUnits")
+    fun observeCompletedTitles(): Flow<Int>
+
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insertBook(book: BookEntity): Long
 
