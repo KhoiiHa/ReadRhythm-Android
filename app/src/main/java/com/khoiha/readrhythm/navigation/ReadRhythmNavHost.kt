@@ -108,7 +108,8 @@ fun ReadRhythmNavHost(
 
                 BookDetailScreen(
                     uiState = uiState,
-                    onBack = { navController.popBackStack() }
+                    onBack = { navController.popBackStack() },
+                    onAddSession = viewModel::addSession
                 )
             }
         }

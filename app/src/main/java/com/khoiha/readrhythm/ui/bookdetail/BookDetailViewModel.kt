@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.khoiha.readrhythm.data.ReadingRepository
+import com.khoiha.readrhythm.data.local.ReadingSessionEntity
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
@@ -19,6 +20,7 @@ class BookDetailViewModel(
 
     init {
         observeBook()
+        observeSessions()
     }
 
     private fun observeBook() {
@@ -33,12 +35,67 @@ class BookDetailViewModel(
                     }
                 }
                 .collect { book ->
-                    _uiState.value = BookDetailUiState(
-                        isLoading = false,
-                        book = book,
-                        errorMessage = if (book == null) "Book not found." else null
-                    )
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            book = book,
+                            errorMessage = if (book == null) "Book not found." else null
+                        )
+                    }
                 }
+        }
+    }
+
+    private fun observeSessions() {
+        viewModelScope.launch {
+            readingRepository.observeSessionsForBook(bookId)
+                .catch { error ->
+                    _uiState.update {
+                        it.copy(errorMessage = error.message ?: "Could not load sessions.")
+                    }
+                }
+                .collect { sessions ->
+                    _uiState.update {
+                        it.copy(sessions = sessions)
+                    }
+                }
+        }
+    }
+
+    fun addSession(
+        minutes: Int,
+        progressAmount: Int
+    ) {
+        if (minutes <= 0) {
+            _uiState.update {
+                it.copy(errorMessage = "Minutes must be greater than 0.")
+            }
+            return
+        }
+
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(isSavingSession = true, errorMessage = null)
+            }
+
+            try {
+                readingRepository.addSession(
+                    ReadingSessionEntity(
+                        bookId = bookId,
+                        minutes = minutes,
+                        progressAmount = progressAmount.coerceAtLeast(0),
+                        createdAt = System.currentTimeMillis()
+                    )
+                )
+            } catch (error: Exception) {
+                _uiState.update {
+                    it.copy(errorMessage = error.message ?: "Could not save session.")
+                }
+            } finally {
+                _uiState.update {
+                    it.copy(isSavingSession = false)
+                }
+            }
         }
     }
 
