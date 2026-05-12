@@ -6,18 +6,25 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.khoiha.readrhythm.data.ReadingRepository
 import com.khoiha.readrhythm.ui.insights.InsightsScreen
 import com.khoiha.readrhythm.ui.library.LibraryScreen
+import com.khoiha.readrhythm.ui.library.LibraryViewModel
 import com.khoiha.readrhythm.ui.sessions.SessionsScreen
 
 @Composable
-fun ReadRhythmNavHost() {
+fun ReadRhythmNavHost(
+    readingRepository: ReadingRepository
+) {
     val navController = rememberNavController()
     val backStackEntry = navController.currentBackStackEntryAsState()
     val currentDestination = backStackEntry.value?.destination
@@ -58,7 +65,12 @@ fun ReadRhythmNavHost() {
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(ReadRhythmRoute.Library.route) {
-                LibraryScreen()
+                val viewModel: LibraryViewModel = viewModel(
+                    factory = LibraryViewModel.Factory(readingRepository)
+                )
+                val uiState by viewModel.uiState.collectAsState()
+
+                LibraryScreen(uiState = uiState)
             }
             composable(ReadRhythmRoute.Sessions.route) {
                 SessionsScreen()
