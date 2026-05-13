@@ -7,19 +7,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -28,7 +24,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.khoiha.readrhythm.data.local.BookEntity
 import com.khoiha.readrhythm.data.local.ReadingFormat
@@ -267,128 +262,6 @@ private fun SessionsSection(
     }
 }
 
-@Composable
-private fun SessionRow(
-    session: ReadingSessionEntity,
-    book: BookEntity
-) {
-    val progressText = if (session.progressAmount > 0) {
-        "+${session.progressAmount} ${sessionProgressUnitLabel(book)}"
-    } else {
-        "No progress added"
-    }
-
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.medium,
-        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)
-    ) {
-        Row(
-            modifier = Modifier.padding(14.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(3.dp)
-            ) {
-                Text(
-                    text = "${session.minutes} min",
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontWeight = FontWeight.Medium
-                )
-                Text(
-                    text = formatDate(session.createdAt),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-
-            Text(
-                text = progressText,
-                style = MaterialTheme.typography.labelLarge,
-                color = if (session.progressAmount > 0) {
-                    MaterialTheme.colorScheme.primary
-                } else {
-                    MaterialTheme.colorScheme.onSurfaceVariant
-                },
-                fontWeight = FontWeight.Medium
-            )
-        }
-    }
-}
-
-@Composable
-private fun AddSessionDialog(
-    isSaving: Boolean,
-    onCancel: () -> Unit,
-    onSave: (minutes: Int, progressAmount: Int) -> Unit
-) {
-    var minutesText by rememberSaveable { mutableStateOf("") }
-    var progressText by rememberSaveable { mutableStateOf("") }
-
-    val minutes = minutesText.toIntOrNull() ?: 0
-    val canSave = minutes > 0 && !isSaving
-
-    AlertDialog(
-        onDismissRequest = {
-            if (!isSaving) {
-                onCancel()
-            }
-        },
-        title = {
-            Text(text = "Add session")
-        },
-        text = {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                OutlinedTextField(
-                    value = minutesText,
-                    onValueChange = { minutesText = it.filter(Char::isDigit) },
-                    modifier = Modifier.fillMaxWidth(),
-                    label = { Text("Minutes") },
-                    singleLine = true,
-                    enabled = !isSaving,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-                )
-
-                OutlinedTextField(
-                    value = progressText,
-                    onValueChange = { progressText = it.filter(Char::isDigit) },
-                    modifier = Modifier.fillMaxWidth(),
-                    label = { Text("Progress optional") },
-                    supportingText = { Text("Pages for books, minutes for audiobooks") },
-                    singleLine = true,
-                    enabled = !isSaving,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-                )
-            }
-        },
-        confirmButton = {
-            Button(
-                onClick = {
-                    onSave(
-                        minutes,
-                        progressText.toIntOrNull() ?: 0
-                    )
-                },
-                enabled = canSave
-            ) {
-                Text(if (isSaving) "Saving..." else "Save")
-            }
-        },
-        dismissButton = {
-            TextButton(
-                onClick = onCancel,
-                enabled = !isSaving
-            ) {
-                Text("Cancel")
-            }
-        }
-    )
-}
-
 private fun formatDate(timestamp: Long): String {
     return DateFormat.getDateInstance(DateFormat.MEDIUM).format(Date(timestamp))
 }
@@ -404,12 +277,5 @@ private fun unitLabel(book: BookEntity): String {
     return when (book.format) {
         ReadingFormat.BOOK -> "pages"
         ReadingFormat.AUDIOBOOK -> "min"
-    }
-}
-
-private fun sessionProgressUnitLabel(book: BookEntity): String {
-    return when (book.format) {
-        ReadingFormat.BOOK -> "pages"
-        ReadingFormat.AUDIOBOOK -> "min progress"
     }
 }
