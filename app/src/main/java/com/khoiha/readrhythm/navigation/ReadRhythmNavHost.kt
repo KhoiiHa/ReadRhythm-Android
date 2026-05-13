@@ -33,33 +33,36 @@ fun ReadRhythmNavHost(
     val navController = rememberNavController()
     val backStackEntry = navController.currentBackStackEntryAsState()
     val currentDestination = backStackEntry.value?.destination
+    val showBottomBar = currentDestination?.route in bottomNavigationRoutes.map { it.route }
 
     Scaffold(
         bottomBar = {
-            NavigationBar {
-                bottomNavigationRoutes.forEach { destination ->
-                    val selected = currentDestination
-                        ?.hierarchy
-                        ?.any { it.route == destination.route } == true
+            if (showBottomBar) {
+                NavigationBar {
+                    bottomNavigationRoutes.forEach { destination ->
+                        val selected = currentDestination
+                            ?.hierarchy
+                            ?.any { it.route == destination.route } == true
 
-                    NavigationBarItem(
-                        selected = selected,
-                        onClick = {
-                            navController.navigate(destination.route) {
-                                popUpTo(navController.graph.startDestinationId) {
-                                    saveState = true
+                        NavigationBarItem(
+                            selected = selected,
+                            onClick = {
+                                navController.navigate(destination.route) {
+                                    popUpTo(navController.graph.startDestinationId) {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
                                 }
-                                launchSingleTop = true
-                                restoreState = true
+                            },
+                            icon = {
+                                Text(text = destination.shortLabel)
+                            },
+                            label = {
+                                Text(text = destination.label)
                             }
-                        },
-                        icon = {
-                            Text(text = destination.shortLabel)
-                        },
-                        label = {
-                            Text(text = destination.label)
-                        }
-                    )
+                        )
+                    }
                 }
             }
         }
