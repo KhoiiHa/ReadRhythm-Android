@@ -17,9 +17,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.khoiha.readrhythm.data.DiscoverRepository
 import com.khoiha.readrhythm.data.ReadingRepository
 import com.khoiha.readrhythm.ui.bookdetail.BookDetailScreen
 import com.khoiha.readrhythm.ui.bookdetail.BookDetailViewModel
+import com.khoiha.readrhythm.ui.discover.DiscoverScreen
+import com.khoiha.readrhythm.ui.discover.DiscoverViewModel
 import com.khoiha.readrhythm.ui.insights.InsightsScreen
 import com.khoiha.readrhythm.ui.insights.InsightsViewModel
 import com.khoiha.readrhythm.ui.library.LibraryScreen
@@ -28,7 +31,8 @@ import com.khoiha.readrhythm.ui.sessions.SessionsScreen
 
 @Composable
 fun ReadRhythmNavHost(
-    readingRepository: ReadingRepository
+    readingRepository: ReadingRepository,
+    discoverRepository: DiscoverRepository
 ) {
     val navController = rememberNavController()
     val backStackEntry = navController.currentBackStackEntryAsState()
@@ -89,6 +93,17 @@ fun ReadRhythmNavHost(
             }
             composable(ReadRhythmRoute.Sessions.route) {
                 SessionsScreen()
+            }
+            composable(ReadRhythmRoute.Discover.route) {
+                val viewModel: DiscoverViewModel = viewModel(
+                    factory = DiscoverViewModel.Factory(discoverRepository)
+                )
+                val uiState by viewModel.uiState.collectAsState()
+
+                DiscoverScreen(
+                    uiState = uiState,
+                    onSearch = viewModel::search
+                )
             }
             composable(ReadRhythmRoute.Insights.route) {
                 val viewModel: InsightsViewModel = viewModel(

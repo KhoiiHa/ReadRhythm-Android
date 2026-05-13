@@ -16,7 +16,8 @@ fun ReadRhythmApp() {
 
     ReadRhythmTheme {
         ReadRhythmNavHost(
-            readingRepository = appContainer.readingRepository
+            readingRepository = appContainer.readingRepository,
+            discoverRepository = appContainer.discoverRepository
         )
     }
 }
