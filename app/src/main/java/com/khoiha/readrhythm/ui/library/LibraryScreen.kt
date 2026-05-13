@@ -42,8 +42,8 @@ fun LibraryScreen(
             uiState.books.isEmpty() -> {
                 ReadRhythmEmptyState(
                     iconText = "R",
-                    title = "Your reading shelf is empty",
-                    message = "Add books and audiobooks here later to keep your current rhythm in one calm place."
+                    title = "Start your reading shelf",
+                    message = "Add a book or audiobook to begin tracking quiet progress over time."
                 )
             }
             else -> {
@@ -104,7 +104,7 @@ private fun LibraryErrorState(message: String) {
     ReadRhythmEmptyState(
         iconText = "!",
         title = "Library could not load",
-        message = message
+        message = "$message Try again after reopening the app."
     )
 }
 

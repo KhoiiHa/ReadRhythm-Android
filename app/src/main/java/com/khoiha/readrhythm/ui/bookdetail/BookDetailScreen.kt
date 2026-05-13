@@ -67,7 +67,7 @@ fun BookDetailScreen(
                     ReadRhythmEmptyState(
                         iconText = "!",
                         title = "Book could not load",
-                        message = uiState.errorMessage ?: "This book is no longer available."
+                        message = uiState.errorMessage ?: "This title is no longer available in your library."
                     )
                 }
                 else -> BookDetailContent(
@@ -282,7 +282,7 @@ private fun SessionsSection(
 
         if (sessions.isEmpty()) {
             Text(
-                text = "No sessions yet. Add your first reading or listening session.",
+                text = "No sessions yet. Add one when you finish reading or listening.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

@@ -7,7 +7,7 @@ import com.khoiha.readrhythm.ui.components.ReadRhythmEmptyState
 fun SessionsScreen() {
     ReadRhythmEmptyState(
         iconText = "S",
-        title = "Sessions will live here",
-        message = "This space is reserved for focused reading and listening sessions once tracking is added."
+        title = "Sessions collect in each title",
+        message = "Open a book or audiobook to add focused reading and listening time."
     )
 }
