@@ -20,6 +20,12 @@ interface ReadingDao {
     @Query("SELECT * FROM books WHERE id = :bookId LIMIT 1")
     suspend fun getBook(bookId: Long): BookEntity?
 
+    @Query("SELECT * FROM books WHERE sourceId = :sourceId LIMIT 1")
+    suspend fun getBookBySourceId(sourceId: String): BookEntity?
+
+    @Query("SELECT * FROM books WHERE LOWER(title) = LOWER(:title) AND LOWER(COALESCE(author, '')) = LOWER(:author) LIMIT 1")
+    suspend fun getBookByTitleAndAuthor(title: String, author: String): BookEntity?
+
     @Query("SELECT * FROM reading_sessions WHERE bookId = :bookId ORDER BY createdAt DESC")
     fun observeSessionsForBook(bookId: Long): Flow<List<ReadingSessionEntity>>
 

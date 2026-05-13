@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -31,7 +32,8 @@ import com.khoiha.readrhythm.ui.components.ReadRhythmEmptyState
 @Composable
 fun DiscoverScreen(
     uiState: DiscoverUiState,
-    onSearch: (String) -> Unit
+    onSearch: (String) -> Unit,
+    onAddToLibrary: (DiscoverBook) -> Unit
 ) {
     var query by rememberSaveable { mutableStateOf("") }
 
@@ -47,6 +49,21 @@ fun DiscoverScreen(
             onQueryChange = { query = it },
             onSearch = { onSearch(query) }
         )
+
+        if (uiState.feedbackMessage != null) {
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = MaterialTheme.shapes.medium,
+                color = MaterialTheme.colorScheme.primaryContainer
+            ) {
+                Text(
+                    text = uiState.feedbackMessage,
+                    modifier = Modifier.padding(14.dp),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            }
+        }
 
         when {
             uiState.isLoading -> DiscoverLoadingState()
@@ -71,7 +88,10 @@ fun DiscoverScreen(
                     message = "Try a title, author, or a more specific search term."
                 )
             }
-            else -> DiscoverResults(results = uiState.results)
+            else -> DiscoverResults(
+                results = uiState.results,
+                onAddToLibrary = onAddToLibrary
+            )
         }
     }
 }
@@ -143,7 +163,8 @@ private fun DiscoverLoadingState() {
 
 @Composable
 private fun DiscoverResults(
-    results: List<DiscoverBook>
+    results: List<DiscoverBook>,
+    onAddToLibrary: (DiscoverBook) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -154,14 +175,18 @@ private fun DiscoverResults(
             items = results,
             key = { book -> book.id }
         ) { book ->
-            DiscoverBookCard(book = book)
+            DiscoverBookCard(
+                book = book,
+                onAddToLibrary = onAddToLibrary
+            )
         }
     }
 }
 
 @Composable
 private fun DiscoverBookCard(
-    book: DiscoverBook
+    book: DiscoverBook,
+    onAddToLibrary: (DiscoverBook) -> Unit
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -209,6 +234,15 @@ private fun DiscoverBookCard(
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis
                 )
+            }
+
+            androidx.compose.foundation.layout.Spacer(modifier = Modifier.height(4.dp))
+
+            Button(
+                onClick = { onAddToLibrary(book) },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Add to Library")
             }
         }
     }

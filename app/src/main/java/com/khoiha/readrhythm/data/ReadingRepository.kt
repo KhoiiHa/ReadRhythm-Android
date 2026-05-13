@@ -2,6 +2,7 @@ package com.khoiha.readrhythm.data
 
 import com.khoiha.readrhythm.data.local.BookEntity
 import com.khoiha.readrhythm.data.local.ReadingDao
+import com.khoiha.readrhythm.data.local.ReadingFormat
 import com.khoiha.readrhythm.data.local.ReadingSessionEntity
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.Flow
@@ -41,6 +42,35 @@ class ReadingRepository(
         return readingDao.insertBook(book)
     }
 
+    suspend fun addDiscoverBook(book: DiscoverBook): AddDiscoverBookResult {
+        val existingBySource = readingDao.getBookBySourceId(book.sourceId)
+        if (existingBySource != null) {
+            return AddDiscoverBookResult.AlreadyExists
+        }
+
+        val fallbackAuthor = book.firstAuthor.orEmpty()
+        val existingByTitleAndAuthor = readingDao.getBookByTitleAndAuthor(
+            title = book.title.trim(),
+            author = fallbackAuthor
+        )
+        if (existingByTitleAndAuthor != null) {
+            return AddDiscoverBookResult.AlreadyExists
+        }
+
+        readingDao.insertBook(
+            BookEntity(
+                sourceId = book.sourceId,
+                title = book.title.trim(),
+                author = book.firstAuthor,
+                format = ReadingFormat.BOOK,
+                progress = 0,
+                totalUnits = book.pageCount ?: 0,
+                createdAt = System.currentTimeMillis()
+            )
+        )
+        return AddDiscoverBookResult.Saved
+    }
+
     suspend fun addSession(session: ReadingSessionEntity): Long {
         return readingDao.insertSessionAndUpdateProgress(session)
     }
@@ -56,3 +86,8 @@ data class InsightsSummary(
     val activeTitles: Int,
     val completedTitles: Int
 )
+
+enum class AddDiscoverBookResult {
+    Saved,
+    AlreadyExists
+}

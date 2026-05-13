@@ -96,13 +96,17 @@ fun ReadRhythmNavHost(
             }
             composable(ReadRhythmRoute.Discover.route) {
                 val viewModel: DiscoverViewModel = viewModel(
-                    factory = DiscoverViewModel.Factory(discoverRepository)
+                    factory = DiscoverViewModel.Factory(
+                        discoverRepository = discoverRepository,
+                        readingRepository = readingRepository
+                    )
                 )
                 val uiState by viewModel.uiState.collectAsState()
 
                 DiscoverScreen(
                     uiState = uiState,
-                    onSearch = viewModel::search
+                    onSearch = viewModel::search,
+                    onAddToLibrary = viewModel::addToLibrary
                 )
             }
             composable(ReadRhythmRoute.Insights.route) {
