@@ -11,6 +11,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -28,6 +29,7 @@ fun LibraryBookCard(
     onBookClick: (BookEntity) -> Unit
 ) {
     val hasProgressTarget = book.totalUnits > 0
+    val isCompleted = hasProgressTarget && book.progress >= book.totalUnits
     val progress = if (hasProgressTarget) {
         (book.progress.toFloat() / book.totalUnits).coerceIn(0f, 1f)
     } else {
@@ -77,6 +79,10 @@ fun LibraryBookCard(
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
+
+                    if (isCompleted) {
+                        CompletedBadge()
+                    }
                 }
 
                 Spacer(modifier = Modifier.width(12.dp))
@@ -131,6 +137,22 @@ fun LibraryBookCard(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun CompletedBadge() {
+    Surface(
+        shape = MaterialTheme.shapes.small,
+        color = MaterialTheme.colorScheme.primaryContainer
+    ) {
+        Text(
+            text = "Completed",
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onPrimaryContainer,
+            fontWeight = FontWeight.Medium
+        )
     }
 }
 

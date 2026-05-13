@@ -1,6 +1,7 @@
 package com.khoiha.readrhythm.ui.bookdetail
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,13 +10,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -32,29 +35,50 @@ import com.khoiha.readrhythm.ui.components.ReadRhythmEmptyState
 import java.text.DateFormat
 import java.util.Date
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BookDetailScreen(
     uiState: BookDetailUiState,
     onBack: () -> Unit,
     onAddSession: (minutes: Int, progressAmount: Int) -> Unit
 ) {
-    when {
-        uiState.isLoading -> BookDetailLoadingState()
-        uiState.book == null -> {
-            ReadRhythmEmptyState(
-                iconText = "!",
-                title = "Book could not load",
-                message = uiState.errorMessage ?: "This book is no longer available."
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(text = uiState.book?.title ?: "Book Detail")
+                },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Text(
+                            text = "‹",
+                            style = MaterialTheme.typography.headlineMedium,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
             )
         }
-        else -> BookDetailContent(
-            book = uiState.book,
-            sessions = uiState.sessions,
-            isSavingSession = uiState.isSavingSession,
-            errorMessage = uiState.errorMessage,
-            onBack = onBack,
-            onAddSession = onAddSession
-        )
+    ) { innerPadding ->
+        Box(modifier = Modifier.padding(innerPadding)) {
+            when {
+                uiState.isLoading -> BookDetailLoadingState()
+                uiState.book == null -> {
+                    ReadRhythmEmptyState(
+                        iconText = "!",
+                        title = "Book could not load",
+                        message = uiState.errorMessage ?: "This book is no longer available."
+                    )
+                }
+                else -> BookDetailContent(
+                    book = uiState.book,
+                    sessions = uiState.sessions,
+                    isSavingSession = uiState.isSavingSession,
+                    errorMessage = uiState.errorMessage,
+                    onAddSession = onAddSession
+                )
+            }
+        }
     }
 }
 
@@ -83,11 +107,11 @@ private fun BookDetailContent(
     sessions: List<ReadingSessionEntity>,
     isSavingSession: Boolean,
     errorMessage: String?,
-    onBack: () -> Unit,
     onAddSession: (minutes: Int, progressAmount: Int) -> Unit
 ) {
     var showAddSessionDialog by rememberSaveable { mutableStateOf(false) }
     val hasProgressTarget = book.totalUnits > 0
+    val isCompleted = hasProgressTarget && book.progress >= book.totalUnits
     val progress = if (hasProgressTarget) {
         (book.progress.toFloat() / book.totalUnits).coerceIn(0f, 1f)
     } else {
@@ -111,15 +135,6 @@ private fun BookDetailContent(
             .padding(20.dp),
         verticalArrangement = Arrangement.spacedBy(18.dp)
     ) {
-        OutlinedButton(
-            onClick = onBack,
-            colors = ButtonDefaults.outlinedButtonColors(
-                contentColor = MaterialTheme.colorScheme.primary
-            )
-        ) {
-            Text("Back")
-        }
-
         if (errorMessage != null) {
             Surface(
                 modifier = Modifier.fillMaxWidth(),
@@ -157,6 +172,10 @@ private fun BookDetailContent(
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+
+                if (isCompleted) {
+                    CompletedBadge()
+                }
 
                 DetailInfoRow(label = "Format", value = formatLabel(book))
                 DetailInfoRow(label = "Progress", value = progressText)
@@ -202,6 +221,22 @@ private fun BookDetailContent(
                 onAddSession(minutes, progressAmount)
                 showAddSessionDialog = false
             }
+        )
+    }
+}
+
+@Composable
+private fun CompletedBadge() {
+    Surface(
+        shape = MaterialTheme.shapes.small,
+        color = MaterialTheme.colorScheme.primaryContainer
+    ) {
+        Text(
+            text = "Completed",
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onPrimaryContainer,
+            fontWeight = FontWeight.Medium
         )
     }
 }
