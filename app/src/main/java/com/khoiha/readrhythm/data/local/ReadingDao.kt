@@ -29,6 +29,9 @@ interface ReadingDao {
     @Query("SELECT * FROM reading_sessions WHERE bookId = :bookId ORDER BY createdAt DESC")
     fun observeSessionsForBook(bookId: Long): Flow<List<ReadingSessionEntity>>
 
+    @Query("SELECT * FROM reading_sessions WHERE createdAt >= :startTime ORDER BY createdAt ASC")
+    fun observeSessionsSince(startTime: Long): Flow<List<ReadingSessionEntity>>
+
     @Query("SELECT COALESCE(SUM(minutes), 0) FROM reading_sessions")
     fun observeTotalMinutes(): Flow<Int>
 

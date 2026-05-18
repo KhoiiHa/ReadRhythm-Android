@@ -3,10 +3,13 @@ package com.khoiha.readrhythm.ui.insights
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -19,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.khoiha.readrhythm.data.WeeklyActivityDay
 import com.khoiha.readrhythm.ui.components.ReadRhythmEmptyState
 
 @Composable
@@ -82,9 +86,100 @@ private fun InsightsContent(
         horizontalArrangement = Arrangement.spacedBy(14.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
+        item(span = { androidx.compose.foundation.lazy.grid.GridItemSpan(maxLineSpan) }) {
+            WeeklyActivitySection(days = uiState.weeklyActivity)
+        }
+
         items(cards) { card ->
             InsightCard(card = card)
         }
+    }
+}
+
+@Composable
+private fun WeeklyActivitySection(
+    days: List<WeeklyActivityDay>
+) {
+    val maxMinutes = days.maxOfOrNull { it.minutes } ?: 0
+
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.large,
+        color = MaterialTheme.colorScheme.surface,
+        tonalElevation = 1.dp
+    ) {
+        Column(
+            modifier = Modifier.padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(
+                    text = "Weekly Activity",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Text(
+                    text = "Minutes logged across the last 7 days",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Bottom
+            ) {
+                days.forEach { day ->
+                    WeeklyActivityDayColumn(
+                        day = day,
+                        maxMinutes = maxMinutes
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun WeeklyActivityDayColumn(
+    day: WeeklyActivityDay,
+    maxMinutes: Int
+) {
+    val barHeight = if (maxMinutes > 0) {
+        (18 + (day.minutes.toFloat() / maxMinutes) * 54).dp
+    } else {
+        18.dp
+    }
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(7.dp)
+    ) {
+        Surface(
+            modifier = Modifier
+                .width(24.dp)
+                .height(barHeight),
+            shape = MaterialTheme.shapes.small,
+            color = if (day.minutes > 0) {
+                MaterialTheme.colorScheme.primary.copy(alpha = 0.74f)
+            } else {
+                MaterialTheme.colorScheme.surfaceVariant
+            }
+        ) {}
+
+        Text(
+            text = day.label,
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = "${day.minutes}",
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            fontWeight = FontWeight.Medium
+        )
     }
 }
 

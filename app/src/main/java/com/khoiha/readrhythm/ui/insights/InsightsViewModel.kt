@@ -37,7 +37,8 @@ class InsightsViewModel(
                         totalMinutes = summary.totalMinutes,
                         totalSessions = summary.totalSessions,
                         activeTitles = summary.activeTitles,
-                        completedTitles = summary.completedTitles
+                        completedTitles = summary.completedTitles,
+                        weeklyActivity = summary.weeklyActivity
                     )
                 }
         }

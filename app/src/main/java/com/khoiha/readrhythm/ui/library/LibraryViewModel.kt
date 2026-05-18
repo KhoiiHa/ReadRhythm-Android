@@ -38,10 +38,41 @@ class LibraryViewModel(
                         it.copy(
                             isLoading = false,
                             books = books,
+                            filteredBooks = filterBooks(
+                                books = books,
+                                query = it.searchQuery,
+                                filter = it.selectedFilter
+                            ),
                             errorMessage = null
                         )
                     }
                 }
+        }
+    }
+
+    fun updateSearchQuery(query: String) {
+        _uiState.update {
+            it.copy(
+                searchQuery = query,
+                filteredBooks = filterBooks(
+                    books = it.books,
+                    query = query,
+                    filter = it.selectedFilter
+                )
+            )
+        }
+    }
+
+    fun updateFormatFilter(filter: LibraryFormatFilter) {
+        _uiState.update {
+            it.copy(
+                selectedFilter = filter,
+                filteredBooks = filterBooks(
+                    books = it.books,
+                    query = it.searchQuery,
+                    filter = filter
+                )
+            )
         }
     }
 
@@ -96,6 +127,23 @@ class LibraryViewModel(
                     it.copy(errorMessage = error.message ?: "Could not delete this book.")
                 }
             }
+        }
+    }
+
+    private fun filterBooks(
+        books: List<BookEntity>,
+        query: String,
+        filter: LibraryFormatFilter
+    ): List<BookEntity> {
+        val normalizedQuery = query.trim().lowercase()
+
+        return books.filter { book ->
+            val matchesQuery = normalizedQuery.isEmpty() ||
+                book.title.lowercase().contains(normalizedQuery) ||
+                book.author.orEmpty().lowercase().contains(normalizedQuery)
+            val matchesFormat = filter.matches(book.format)
+
+            matchesQuery && matchesFormat
         }
     }
 

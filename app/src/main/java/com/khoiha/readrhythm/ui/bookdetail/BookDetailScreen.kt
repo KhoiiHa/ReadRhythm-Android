@@ -4,9 +4,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -26,8 +29,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
 import com.khoiha.readrhythm.data.local.BookEntity
 import com.khoiha.readrhythm.data.local.ReadingFormat
 import com.khoiha.readrhythm.data.local.ReadingSessionEntity
@@ -150,48 +157,19 @@ private fun BookDetailContent(
             }
         }
 
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            shape = MaterialTheme.shapes.large,
-            color = MaterialTheme.colorScheme.surface,
-            tonalElevation = 1.dp
-        ) {
-            Column(
-                modifier = Modifier.padding(22.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Text(
-                    text = book.title,
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontWeight = FontWeight.SemiBold
-                )
+        BookHeroSection(
+            book = book,
+            isCompleted = isCompleted
+        )
 
-                Text(
-                    text = book.author ?: "Unknown author",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+        ProgressSection(
+            hasProgressTarget = hasProgressTarget,
+            progress = progress,
+            progressText = progressText,
+            percentText = percentText
+        )
 
-                if (isCompleted) {
-                    CompletedBadge()
-                }
-
-                DetailInfoRow(label = "Format", value = formatLabel(book))
-                DetailInfoRow(label = "Progress", value = progressText)
-                DetailInfoRow(label = "Completion", value = percentText)
-                DetailInfoRow(label = "Created", value = formatDate(book.createdAt))
-
-                if (hasProgressTarget) {
-                    LinearProgressIndicator(
-                        progress = { progress },
-                        modifier = Modifier.fillMaxWidth(),
-                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.75f),
-                        trackColor = MaterialTheme.colorScheme.surfaceVariant
-                    )
-                }
-            }
-        }
+        BookInfoSection(book = book)
 
         Button(
             onClick = { showAddSessionDialog = true },
@@ -204,7 +182,8 @@ private fun BookDetailContent(
         Surface(
             modifier = Modifier.fillMaxWidth(),
             shape = MaterialTheme.shapes.large,
-            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
+            color = MaterialTheme.colorScheme.surface,
+            tonalElevation = 1.dp
         ) {
             SessionsSection(
                 sessions = sessions,
@@ -222,6 +201,188 @@ private fun BookDetailContent(
                 showAddSessionDialog = false
             }
         )
+    }
+}
+
+@Composable
+private fun BookHeroSection(
+    book: BookEntity,
+    isCompleted: Boolean
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.large,
+        color = MaterialTheme.colorScheme.surface,
+        tonalElevation = 1.dp
+    ) {
+        Row(
+            modifier = Modifier.padding(18.dp),
+            horizontalArrangement = Arrangement.spacedBy(18.dp),
+            verticalAlignment = Alignment.Top
+        ) {
+            DetailBookCover(
+                title = book.title,
+                thumbnailUrl = book.thumbnailUrl
+            )
+
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight(),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Text(
+                    text = formatLabel(book),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Medium
+                )
+
+                Text(
+                    text = book.title,
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                Text(
+                    text = book.author ?: "Unknown author",
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                if (isCompleted) {
+                    CompletedBadge()
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun DetailBookCover(
+    title: String,
+    thumbnailUrl: String?
+) {
+    Surface(
+        modifier = Modifier
+            .width(112.dp)
+            .height(168.dp),
+        shape = MaterialTheme.shapes.large,
+        color = MaterialTheme.colorScheme.surfaceVariant
+    ) {
+        if (thumbnailUrl != null) {
+            AsyncImage(
+                model = thumbnailUrl,
+                contentDescription = "Cover for $title",
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(MaterialTheme.shapes.large),
+                contentScale = ContentScale.Crop
+            )
+        } else {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(14.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = title.take(1).uppercase(),
+                    style = MaterialTheme.typography.displaySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ProgressSection(
+    hasProgressTarget: Boolean,
+    progress: Float,
+    progressText: String,
+    percentText: String
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.large,
+        color = MaterialTheme.colorScheme.surface,
+        tonalElevation = 1.dp
+    ) {
+        Column(
+            modifier = Modifier.padding(18.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Progress",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Text(
+                    text = percentText,
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontWeight = FontWeight.Medium
+                )
+            }
+
+            Text(
+                text = progressText,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            if (hasProgressTarget) {
+                LinearProgressIndicator(
+                    progress = { progress },
+                    modifier = Modifier.fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.75f),
+                    trackColor = MaterialTheme.colorScheme.surfaceVariant
+                )
+            } else {
+                Text(
+                    text = "Set a target when you want completion tracking.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun BookInfoSection(book: BookEntity) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.large,
+        color = MaterialTheme.colorScheme.surface,
+        tonalElevation = 1.dp
+    ) {
+        Column(
+            modifier = Modifier.padding(18.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Text(
+                text = "Details",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.SemiBold
+            )
+            DetailInfoRow(label = "Format", value = formatLabel(book))
+            DetailInfoRow(label = "Created", value = formatDate(book.createdAt))
+        }
     }
 }
 
@@ -281,11 +442,28 @@ private fun SessionsSection(
         )
 
         if (sessions.isEmpty()) {
-            Text(
-                text = "No sessions yet. Add one when you finish reading or listening.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = MaterialTheme.shapes.medium,
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f)
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    Text(
+                        text = "No sessions logged yet",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = "Add a session after reading or listening to keep this title moving.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
         } else {
             sessions.forEach { session ->
                 SessionRow(

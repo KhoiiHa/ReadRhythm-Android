@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -33,12 +32,11 @@ fun SessionRow(
 
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.large,
-        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.82f),
-        tonalElevation = 1.dp
+        shape = MaterialTheme.shapes.medium,
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f)
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
+            modifier = Modifier.padding(horizontal = 15.dp, vertical = 13.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -58,17 +56,26 @@ fun SessionRow(
                 )
             }
 
-            Text(
-                text = progressText,
-                modifier = Modifier.widthIn(min = 84.dp),
-                style = MaterialTheme.typography.labelLarge,
+            Surface(
+                shape = MaterialTheme.shapes.small,
                 color = if (session.progressAmount > 0) {
-                    MaterialTheme.colorScheme.primary
+                    MaterialTheme.colorScheme.primaryContainer
                 } else {
-                    MaterialTheme.colorScheme.onSurfaceVariant
-                },
-                fontWeight = FontWeight.Medium
-            )
+                    MaterialTheme.colorScheme.surface
+                }
+            ) {
+                Text(
+                    text = progressText,
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = if (session.progressAmount > 0) {
+                        MaterialTheme.colorScheme.onPrimaryContainer
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    },
+                    fontWeight = FontWeight.Medium
+                )
+            }
         }
     }
 }

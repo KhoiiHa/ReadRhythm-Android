@@ -88,7 +88,9 @@ fun ReadRhythmNavHost(
                     onDeleteBook = viewModel::deleteBook,
                     onBookClick = { book ->
                         navController.navigate(ReadRhythmRoute.BookDetail.createRoute(book.id))
-                    }
+                    },
+                    onSearchQueryChange = viewModel::updateSearchQuery,
+                    onFormatFilterChange = viewModel::updateFormatFilter
                 )
             }
             composable(ReadRhythmRoute.Sessions.route) {

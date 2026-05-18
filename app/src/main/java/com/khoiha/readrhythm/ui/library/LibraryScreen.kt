@@ -5,12 +5,16 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -29,7 +33,9 @@ fun LibraryScreen(
     uiState: LibraryUiState,
     onAddBook: (title: String, author: String?, format: ReadingFormat, totalUnits: Int) -> Unit,
     onDeleteBook: (BookEntity) -> Unit,
-    onBookClick: (BookEntity) -> Unit
+    onBookClick: (BookEntity) -> Unit,
+    onSearchQueryChange: (String) -> Unit,
+    onFormatFilterChange: (LibraryFormatFilter) -> Unit
 ) {
     var showAddBookDialog by rememberSaveable { mutableStateOf(false) }
 
@@ -48,9 +54,14 @@ fun LibraryScreen(
             }
             else -> {
                 LibraryContentState(
-                    books = uiState.books,
+                    books = uiState.filteredBooks,
+                    totalBooks = uiState.books.size,
+                    searchQuery = uiState.searchQuery,
+                    selectedFilter = uiState.selectedFilter,
                     onDeleteBook = onDeleteBook,
-                    onBookClick = onBookClick
+                    onBookClick = onBookClick,
+                    onSearchQueryChange = onSearchQueryChange,
+                    onFormatFilterChange = onFormatFilterChange
                 )
             }
         }
@@ -111,8 +122,13 @@ private fun LibraryErrorState(message: String) {
 @Composable
 private fun LibraryContentState(
     books: List<BookEntity>,
+    totalBooks: Int,
+    searchQuery: String,
+    selectedFilter: LibraryFormatFilter,
     onDeleteBook: (BookEntity) -> Unit,
-    onBookClick: (BookEntity) -> Unit
+    onBookClick: (BookEntity) -> Unit,
+    onSearchQueryChange: (String) -> Unit,
+    onFormatFilterChange: (LibraryFormatFilter) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -124,6 +140,25 @@ private fun LibraryContentState(
         ),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
+        item {
+            LibrarySearchAndFilter(
+                searchQuery = searchQuery,
+                selectedFilter = selectedFilter,
+                onSearchQueryChange = onSearchQueryChange,
+                onFormatFilterChange = onFormatFilterChange
+            )
+        }
+
+        if (books.isEmpty()) {
+            item {
+                ReadRhythmEmptyState(
+                    iconText = "R",
+                    title = "No matching titles",
+                    message = "Try a different title, author, or format filter across your $totalBooks saved titles."
+                )
+            }
+        }
+
         items(
             items = books,
             key = { book -> book.id }
@@ -135,4 +170,65 @@ private fun LibraryContentState(
             )
         }
     }
+}
+
+@Composable
+private fun LibrarySearchAndFilter(
+    searchQuery: String,
+    selectedFilter: LibraryFormatFilter,
+    onSearchQueryChange: (String) -> Unit,
+    onFormatFilterChange: (LibraryFormatFilter) -> Unit
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.large,
+        color = MaterialTheme.colorScheme.surface,
+        tonalElevation = 1.dp
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = onSearchQueryChange,
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Search library") },
+                singleLine = true
+            )
+
+            androidx.compose.foundation.layout.Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                LibraryFilterChip(
+                    label = "All",
+                    selected = selectedFilter == LibraryFormatFilter.ALL,
+                    onClick = { onFormatFilterChange(LibraryFormatFilter.ALL) }
+                )
+                LibraryFilterChip(
+                    label = "Books",
+                    selected = selectedFilter == LibraryFormatFilter.BOOKS,
+                    onClick = { onFormatFilterChange(LibraryFormatFilter.BOOKS) }
+                )
+                LibraryFilterChip(
+                    label = "Audiobooks",
+                    selected = selectedFilter == LibraryFormatFilter.AUDIOBOOKS,
+                    onClick = { onFormatFilterChange(LibraryFormatFilter.AUDIOBOOKS) }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun LibraryFilterChip(
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    FilterChip(
+        selected = selected,
+        onClick = onClick,
+        label = { Text(label) }
+    )
 }

@@ -6,6 +6,10 @@ import com.khoiha.readrhythm.data.local.ReadingFormat
 import com.khoiha.readrhythm.data.local.ReadingSessionEntity
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 class ReadingRepository(
     private val readingDao: ReadingDao
@@ -27,15 +31,38 @@ class ReadingRepository(
             readingDao.observeTotalMinutes(),
             readingDao.observeTotalSessions(),
             readingDao.observeActiveTitles(),
-            readingDao.observeCompletedTitles()
-        ) { totalMinutes, totalSessions, activeTitles, completedTitles ->
+            readingDao.observeCompletedTitles(),
+            observeWeeklyActivity()
+        ) { totalMinutes, totalSessions, activeTitles, completedTitles, weeklyActivity ->
             InsightsSummary(
                 totalMinutes = totalMinutes,
                 totalSessions = totalSessions,
                 activeTitles = activeTitles,
-                completedTitles = completedTitles
+                completedTitles = completedTitles,
+                weeklyActivity = weeklyActivity
             )
         }
+    }
+
+    private fun observeWeeklyActivity(): Flow<List<WeeklyActivityDay>> {
+        val days = lastSevenDays()
+        val startTime = days.first().startTime
+
+        return readingDao.observeSessionsSince(startTime)
+            .map { sessions ->
+                days.map { day ->
+                    val minutes = sessions
+                        .filter { session ->
+                            session.createdAt >= day.startTime && session.createdAt < day.endTime
+                        }
+                        .sumOf { it.minutes }
+
+                    WeeklyActivityDay(
+                        label = day.label,
+                        minutes = minutes
+                    )
+                }
+            }
     }
 
     suspend fun insertBook(book: BookEntity): Long {
@@ -85,10 +112,55 @@ data class InsightsSummary(
     val totalMinutes: Int,
     val totalSessions: Int,
     val activeTitles: Int,
-    val completedTitles: Int
+    val completedTitles: Int,
+    val weeklyActivity: List<WeeklyActivityDay>
+)
+
+data class WeeklyActivityDay(
+    val label: String,
+    val minutes: Int
 )
 
 enum class AddDiscoverBookResult {
     Saved,
     AlreadyExists
+}
+
+private data class ActivityDayWindow(
+    val label: String,
+    val startTime: Long,
+    val endTime: Long
+)
+
+private fun lastSevenDays(): List<ActivityDayWindow> {
+    val labelFormat = SimpleDateFormat("EEE", Locale.getDefault())
+    val today = Calendar.getInstance().startOfDay()
+
+    return (6 downTo 0).map { daysAgo ->
+        val start = today.copy().apply {
+            add(Calendar.DAY_OF_YEAR, -daysAgo)
+        }
+        val end = start.copy().apply {
+            add(Calendar.DAY_OF_YEAR, 1)
+        }
+
+        ActivityDayWindow(
+            label = labelFormat.format(start.time),
+            startTime = start.timeInMillis,
+            endTime = end.timeInMillis
+        )
+    }
+}
+
+private fun Calendar.startOfDay(): Calendar {
+    return apply {
+        set(Calendar.HOUR_OF_DAY, 0)
+        set(Calendar.MINUTE, 0)
+        set(Calendar.SECOND, 0)
+        set(Calendar.MILLISECOND, 0)
+    }
+}
+
+private fun Calendar.copy(): Calendar {
+    return clone() as Calendar
 }
