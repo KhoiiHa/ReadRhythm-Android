@@ -60,6 +60,7 @@ class ReadingRepository(
         readingDao.insertBook(
             BookEntity(
                 sourceId = book.sourceId,
+                thumbnailUrl = book.thumbnailUrl,
                 title = book.title.trim(),
                 author = book.firstAuthor,
                 format = ReadingFormat.BOOK,
