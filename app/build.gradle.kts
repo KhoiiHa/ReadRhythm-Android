@@ -71,6 +71,8 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.room.runtime)
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.gson)
     ksp(libs.androidx.room.compiler)

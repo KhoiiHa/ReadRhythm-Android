@@ -14,5 +14,11 @@ data class GoogleBookVolumeInfoDto(
     val subtitle: String? = null,
     val authors: List<String>? = null,
     val pageCount: Int? = null,
-    val description: String? = null
+    val description: String? = null,
+    val imageLinks: GoogleBookImageLinksDto? = null
+)
+
+data class GoogleBookImageLinksDto(
+    val smallThumbnail: String? = null,
+    val thumbnail: String? = null
 )

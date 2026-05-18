@@ -40,6 +40,16 @@ private fun GoogleBookVolumeDto.toDiscoverBook(): DiscoverBook? {
             ?.trim(),
         pageCount = info.pageCount,
         description = info.subtitle?.takeIf { it.isNotBlank() }
-            ?: info.description?.takeIf { it.isNotBlank() }
+            ?: info.description?.takeIf { it.isNotBlank() },
+        thumbnailUrl = info.imageLinks?.thumbnail
+            ?.takeIf { it.isNotBlank() }
+            ?.toHttpsUrl()
+            ?: info.imageLinks?.smallThumbnail
+                ?.takeIf { it.isNotBlank() }
+                ?.toHttpsUrl()
     )
+}
+
+private fun String.toHttpsUrl(): String {
+    return replace("http://", "https://")
 }
