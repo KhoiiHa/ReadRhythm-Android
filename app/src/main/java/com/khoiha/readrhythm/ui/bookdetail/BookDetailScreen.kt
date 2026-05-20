@@ -194,6 +194,7 @@ private fun BookDetailContent(
 
     if (showAddSessionDialog) {
         AddSessionDialog(
+            format = book.format,
             isSaving = isSavingSession,
             onCancel = { showAddSessionDialog = false },
             onSave = { minutes, progressAmount ->

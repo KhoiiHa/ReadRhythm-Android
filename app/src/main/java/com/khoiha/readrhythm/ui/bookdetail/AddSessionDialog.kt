@@ -17,9 +17,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.khoiha.readrhythm.data.local.ReadingFormat
 
 @Composable
 fun AddSessionDialog(
+    format: ReadingFormat,
     isSaving: Boolean,
     onCancel: () -> Unit,
     onSave: (minutes: Int, progressAmount: Int) -> Unit
@@ -27,6 +29,7 @@ fun AddSessionDialog(
     var minutesText by rememberSaveable { mutableStateOf("") }
     var progressText by rememberSaveable { mutableStateOf("") }
 
+    val copy = sessionDialogCopy(format)
     val minutes = minutesText.toIntOrNull() ?: 0
     val canSave = minutes > 0 && !isSaving
 
@@ -47,7 +50,8 @@ fun AddSessionDialog(
                     value = minutesText,
                     onValueChange = { minutesText = it.filter(Char::isDigit) },
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text("Minutes") },
+                    label = { Text(copy.lengthLabel) },
+                    supportingText = { Text(copy.lengthHelper) },
                     singleLine = true,
                     enabled = !isSaving,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
@@ -57,8 +61,8 @@ fun AddSessionDialog(
                     value = progressText,
                     onValueChange = { progressText = it.filter(Char::isDigit) },
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text("Progress optional") },
-                    supportingText = { Text("Pages for books, minutes for audiobooks") },
+                    label = { Text(copy.progressLabel) },
+                    supportingText = { Text(copy.progressHelper) },
                     singleLine = true,
                     enabled = !isSaving,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
@@ -75,7 +79,7 @@ fun AddSessionDialog(
                 },
                 enabled = canSave
             ) {
-                Text(if (isSaving) "Saving..." else "Save")
+                Text(if (isSaving) "Saving..." else "Save session")
             }
         },
         dismissButton = {
@@ -87,4 +91,28 @@ fun AddSessionDialog(
             }
         }
     )
+}
+
+private data class SessionDialogCopy(
+    val lengthLabel: String,
+    val lengthHelper: String,
+    val progressLabel: String,
+    val progressHelper: String
+)
+
+private fun sessionDialogCopy(format: ReadingFormat): SessionDialogCopy {
+    return when (format) {
+        ReadingFormat.BOOK -> SessionDialogCopy(
+            lengthLabel = "Session length",
+            lengthHelper = "How long you spent reading.",
+            progressLabel = "Pages read",
+            progressHelper = "How many pages this session moved you forward."
+        )
+        ReadingFormat.AUDIOBOOK -> SessionDialogCopy(
+            lengthLabel = "Listening time",
+            lengthHelper = "How long you spent listening.",
+            progressLabel = "Listening progress",
+            progressHelper = "How many minutes this audiobook moved forward."
+        )
+    }
 }
