@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FloatingActionButton
@@ -16,6 +18,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,6 +41,7 @@ fun LibraryScreen(
     onFormatFilterChange: (LibraryFormatFilter) -> Unit
 ) {
     var showAddBookDialog by rememberSaveable { mutableStateOf(false) }
+    var bookPendingDelete by rememberSaveable { mutableStateOf<BookEntity?>(null) }
 
     Box(modifier = Modifier.fillMaxSize()) {
         when {
@@ -58,7 +62,7 @@ fun LibraryScreen(
                     totalBooks = uiState.books.size,
                     searchQuery = uiState.searchQuery,
                     selectedFilter = uiState.selectedFilter,
-                    onDeleteBook = onDeleteBook,
+                    onDeleteBook = { bookPendingDelete = it },
                     onBookClick = onBookClick,
                     onSearchQueryChange = onSearchQueryChange,
                     onFormatFilterChange = onFormatFilterChange
@@ -89,6 +93,17 @@ fun LibraryScreen(
             }
         )
     }
+
+    if (bookPendingDelete != null) {
+        DeleteBookConfirmationDialog(
+            book = bookPendingDelete,
+            onCancel = { bookPendingDelete = null },
+            onConfirm = {
+                bookPendingDelete?.let(onDeleteBook)
+                bookPendingDelete = null
+            }
+        )
+    }
 }
 
 @Composable
@@ -116,6 +131,37 @@ private fun LibraryErrorState(message: String) {
         iconText = "!",
         title = "Library could not load",
         message = "$message Try again after reopening the app."
+    )
+}
+
+@Composable
+private fun DeleteBookConfirmationDialog(
+    book: BookEntity?,
+    onCancel: () -> Unit,
+    onConfirm: () -> Unit
+) {
+    if (book == null) return
+
+    AlertDialog(
+        onDismissRequest = onCancel,
+        title = {
+            Text(text = "Delete book?")
+        },
+        text = {
+            Text(
+                text = "Delete \"${book.title}\" from your Library? Its reading and listening sessions will be removed too."
+            )
+        },
+        confirmButton = {
+            Button(onClick = onConfirm) {
+                Text("Delete book")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onCancel) {
+                Text("Cancel")
+            }
+        }
     )
 }
 
