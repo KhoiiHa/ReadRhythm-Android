@@ -28,7 +28,6 @@ import com.khoiha.readrhythm.ui.insights.InsightsScreen
 import com.khoiha.readrhythm.ui.insights.InsightsViewModel
 import com.khoiha.readrhythm.ui.library.LibraryScreen
 import com.khoiha.readrhythm.ui.library.LibraryViewModel
-import com.khoiha.readrhythm.ui.sessions.SessionsScreen
 
 @Composable
 fun ReadRhythmNavHost(
@@ -93,9 +92,6 @@ fun ReadRhythmNavHost(
                     onSearchQueryChange = viewModel::updateSearchQuery,
                     onFormatFilterChange = viewModel::updateFormatFilter
                 )
-            }
-            composable(ReadRhythmRoute.Sessions.route) {
-                SessionsScreen()
             }
             composable(ReadRhythmRoute.Discover.route) {
                 val viewModel: DiscoverViewModel = viewModel(

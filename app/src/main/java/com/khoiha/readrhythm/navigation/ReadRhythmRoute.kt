@@ -14,12 +14,6 @@ sealed class ReadRhythmRoute(
         shortLabel = "R"
     )
 
-    data object Sessions : ReadRhythmRoute(
-        route = "sessions",
-        labelRes = R.string.nav_sessions,
-        shortLabel = "S"
-    )
-
     data object Discover : ReadRhythmRoute(
         route = "discover",
         labelRes = R.string.nav_discover,
@@ -45,6 +39,5 @@ sealed class ReadRhythmRoute(
 val bottomNavigationRoutes = listOf(
     ReadRhythmRoute.Library,
     ReadRhythmRoute.Discover,
-    ReadRhythmRoute.Sessions,
     ReadRhythmRoute.Insights
 )

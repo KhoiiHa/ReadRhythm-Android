@@ -12,12 +12,8 @@
     <string name="common_book">Book</string>
     <string name="common_audiobook">Audiobook</string>
     <string name="nav_library">Library</string>
-    <string name="nav_sessions">Sessions</string>
     <string name="nav_discover">Discover</string>
     <string name="nav_insights">Insights</string>
-
-    <string name="sessions_tab_empty_title">Sessions live inside each title</string>
-    <string name="sessions_tab_empty_message">Open a book or audiobook from your Library and add a session to track time, progress, and insights.</string>
 
     <string name="library_empty_title">Build your reading shelf</string>
     <string name="library_empty_message">Add your first book manually with the plus button, or use Discover to find one from Google Books.</string>
