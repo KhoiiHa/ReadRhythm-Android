@@ -101,6 +101,7 @@ private fun WeeklyActivitySection(
     days: List<WeeklyActivityDay>
 ) {
     val maxMinutes = days.maxOfOrNull { it.minutes } ?: 0
+    val weeklyMinutes = days.sumOf { it.minutes }
 
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -123,6 +124,20 @@ private fun WeeklyActivitySection(
                     text = "Minutes logged across the last 7 days",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = MaterialTheme.shapes.medium,
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f)
+            ) {
+                Text(
+                    text = weeklySummaryText(weeklyMinutes),
+                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.Medium
                 )
             }
 
@@ -225,3 +240,11 @@ private data class InsightCardData(
     val value: String,
     val description: String
 )
+
+private fun weeklySummaryText(minutes: Int): String {
+    return when (minutes) {
+        0 -> "No minutes logged this week yet."
+        1 -> "You logged 1 min this week."
+        else -> "You logged $minutes min this week."
+    }
+}
