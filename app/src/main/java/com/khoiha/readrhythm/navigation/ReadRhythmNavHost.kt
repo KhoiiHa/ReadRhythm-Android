@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavType
@@ -63,7 +64,7 @@ fun ReadRhythmNavHost(
                                 Text(text = destination.shortLabel)
                             },
                             label = {
-                                Text(text = destination.label)
+                                Text(text = stringResource(destination.labelRes))
                             }
                         )
                     }

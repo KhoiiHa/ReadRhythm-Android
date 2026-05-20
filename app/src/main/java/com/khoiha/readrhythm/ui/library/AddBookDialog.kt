@@ -17,8 +17,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.khoiha.readrhythm.R
 import com.khoiha.readrhythm.data.local.ReadingFormat
 
 @Composable
@@ -42,7 +44,7 @@ fun AddBookDialog(
             }
         },
         title = {
-            Text(text = "Add to library")
+            Text(text = stringResource(R.string.add_book_title))
         },
         text = {
             Column(
@@ -52,7 +54,7 @@ fun AddBookDialog(
                     value = title,
                     onValueChange = { title = it },
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text("Title") },
+                    label = { Text(stringResource(R.string.add_book_title_label)) },
                     singleLine = true,
                     enabled = !isSaving
                 )
@@ -61,7 +63,7 @@ fun AddBookDialog(
                     value = author,
                     onValueChange = { author = it },
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text("Author optional") },
+                    label = { Text(stringResource(R.string.add_book_author_label)) },
                     singleLine = true,
                     enabled = !isSaving
                 )
@@ -72,13 +74,13 @@ fun AddBookDialog(
                     FilterChip(
                         selected = selectedFormat == ReadingFormat.BOOK,
                         onClick = { selectedFormat = ReadingFormat.BOOK },
-                        label = { Text("Book") },
+                        label = { Text(stringResource(R.string.common_book)) },
                         enabled = !isSaving
                     )
                     FilterChip(
                         selected = selectedFormat == ReadingFormat.AUDIOBOOK,
                         onClick = { selectedFormat = ReadingFormat.AUDIOBOOK },
-                        label = { Text("Audiobook") },
+                        label = { Text(stringResource(R.string.common_audiobook)) },
                         enabled = !isSaving
                     )
                 }
@@ -87,7 +89,7 @@ fun AddBookDialog(
                     value = totalUnitsText,
                     onValueChange = { totalUnitsText = it.filter(Char::isDigit) },
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text("Total units optional") },
+                    label = { Text(stringResource(R.string.add_book_total_units_label)) },
                     singleLine = true,
                     enabled = !isSaving,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
@@ -106,7 +108,13 @@ fun AddBookDialog(
                 },
                 enabled = canSave
             ) {
-                Text(if (isSaving) "Saving..." else "Save")
+                Text(
+                    if (isSaving) {
+                        stringResource(R.string.common_saving)
+                    } else {
+                        stringResource(R.string.common_save)
+                    }
+                )
             }
         },
         dismissButton = {
@@ -114,7 +122,7 @@ fun AddBookDialog(
                 onClick = onCancel,
                 enabled = !isSaving
             ) {
-                Text("Cancel")
+                Text(stringResource(R.string.common_cancel))
             }
         }
     )

@@ -29,10 +29,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import com.khoiha.readrhythm.R
 import com.khoiha.readrhythm.data.DiscoverBook
 import com.khoiha.readrhythm.ui.components.ReadRhythmEmptyState
 
@@ -77,22 +79,22 @@ fun DiscoverScreen(
             uiState.errorMessage != null -> {
                 ReadRhythmEmptyState(
                     iconText = "!",
-                    title = "Search could not load",
+                    title = stringResource(R.string.discover_error_title),
                     message = uiState.errorMessage
                 )
             }
             !uiState.hasSearched -> {
                 ReadRhythmEmptyState(
                     iconText = "D",
-                    title = "Find your next read",
-                    message = "Search Google Books by title or author, then save a result to your local library."
+                    title = stringResource(R.string.discover_empty_title),
+                    message = stringResource(R.string.discover_empty_message)
                 )
             }
             uiState.results.isEmpty() -> {
                 ReadRhythmEmptyState(
                     iconText = "D",
-                    title = "No results found",
-                    message = "Try a different title, author, or a more specific search term."
+                    title = stringResource(R.string.discover_no_results_title),
+                    message = stringResource(R.string.discover_no_results_message)
                 )
             }
             else -> DiscoverResults(
@@ -121,7 +123,7 @@ private fun SearchHeader(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Text(
-                text = "Discover",
+                text = stringResource(R.string.discover_title),
                 style = MaterialTheme.typography.headlineSmall,
                 color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.SemiBold
@@ -135,7 +137,7 @@ private fun SearchHeader(
                     value = query,
                     onValueChange = onQueryChange,
                     modifier = Modifier.weight(1f),
-                    label = { Text("Title or author") },
+                    label = { Text(stringResource(R.string.discover_search_label)) },
                     singleLine = true,
                     enabled = !isLoading
                 )
@@ -144,7 +146,7 @@ private fun SearchHeader(
                     onClick = onSearch,
                     enabled = !isLoading && query.isNotBlank()
                 ) {
-                    Text("Search")
+                    Text(stringResource(R.string.discover_search_button))
                 }
             }
         }
@@ -170,13 +172,13 @@ private fun DiscoverLoadingState() {
             )
             Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(
-                    text = "Searching Google Books",
+                    text = stringResource(R.string.discover_loading_title),
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Medium
                 )
                 Text(
-                    text = "Finding matching titles and covers.",
+                    text = stringResource(R.string.discover_loading_message),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -246,7 +248,7 @@ private fun DiscoverBookCard(
 
                     if (book.authors != null) {
                         Text(
-                            text = "by ${book.authors}",
+                            text = stringResource(R.string.discover_author_by, book.authors),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 2,
@@ -256,7 +258,7 @@ private fun DiscoverBookCard(
 
                     if (book.pageCount != null) {
                         Text(
-                            text = "${book.pageCount} pages",
+                            text = stringResource(R.string.discover_page_count, book.pageCount),
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             fontWeight = FontWeight.Medium
@@ -279,7 +281,7 @@ private fun DiscoverBookCard(
                 onClick = { onAddToLibrary(book) },
                 modifier = Modifier.align(Alignment.End)
             ) {
-                Text("Add to Library")
+                Text(stringResource(R.string.discover_add_to_library))
             }
         }
     }
@@ -300,7 +302,7 @@ private fun BookCover(
         if (thumbnailUrl != null) {
             AsyncImage(
                 model = thumbnailUrl,
-                contentDescription = "Cover for $title",
+                contentDescription = stringResource(R.string.common_cover_for, title),
                 modifier = Modifier
                     .fillMaxSize()
                     .clip(MaterialTheme.shapes.medium),

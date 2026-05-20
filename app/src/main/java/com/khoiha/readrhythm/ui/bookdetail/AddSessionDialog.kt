@@ -15,8 +15,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.khoiha.readrhythm.R
 import com.khoiha.readrhythm.data.local.ReadingFormat
 
 @Composable
@@ -40,7 +42,7 @@ fun AddSessionDialog(
             }
         },
         title = {
-            Text(text = "Add session")
+            Text(text = stringResource(R.string.add_session_title))
         },
         text = {
             Column(
@@ -50,8 +52,8 @@ fun AddSessionDialog(
                     value = minutesText,
                     onValueChange = { minutesText = it.filter(Char::isDigit) },
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text(copy.lengthLabel) },
-                    supportingText = { Text(copy.lengthHelper) },
+                    label = { Text(stringResource(copy.lengthLabelRes)) },
+                    supportingText = { Text(stringResource(copy.lengthHelperRes)) },
                     singleLine = true,
                     enabled = !isSaving,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
@@ -61,8 +63,8 @@ fun AddSessionDialog(
                     value = progressText,
                     onValueChange = { progressText = it.filter(Char::isDigit) },
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text(copy.progressLabel) },
-                    supportingText = { Text(copy.progressHelper) },
+                    label = { Text(stringResource(copy.progressLabelRes)) },
+                    supportingText = { Text(stringResource(copy.progressHelperRes)) },
                     singleLine = true,
                     enabled = !isSaving,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
@@ -79,7 +81,13 @@ fun AddSessionDialog(
                 },
                 enabled = canSave
             ) {
-                Text(if (isSaving) "Saving..." else "Save session")
+                Text(
+                    if (isSaving) {
+                        stringResource(R.string.common_saving)
+                    } else {
+                        stringResource(R.string.add_session_save)
+                    }
+                )
             }
         },
         dismissButton = {
@@ -87,32 +95,32 @@ fun AddSessionDialog(
                 onClick = onCancel,
                 enabled = !isSaving
             ) {
-                Text("Cancel")
+                Text(stringResource(R.string.common_cancel))
             }
         }
     )
 }
 
 private data class SessionDialogCopy(
-    val lengthLabel: String,
-    val lengthHelper: String,
-    val progressLabel: String,
-    val progressHelper: String
+    val lengthLabelRes: Int,
+    val lengthHelperRes: Int,
+    val progressLabelRes: Int,
+    val progressHelperRes: Int
 )
 
 private fun sessionDialogCopy(format: ReadingFormat): SessionDialogCopy {
     return when (format) {
         ReadingFormat.BOOK -> SessionDialogCopy(
-            lengthLabel = "Session length",
-            lengthHelper = "How long you spent reading.",
-            progressLabel = "Pages read",
-            progressHelper = "How many pages this session moved you forward."
+            lengthLabelRes = R.string.add_session_book_length_label,
+            lengthHelperRes = R.string.add_session_book_length_helper,
+            progressLabelRes = R.string.add_session_book_progress_label,
+            progressHelperRes = R.string.add_session_book_progress_helper
         )
         ReadingFormat.AUDIOBOOK -> SessionDialogCopy(
-            lengthLabel = "Listening time",
-            lengthHelper = "How long you spent listening.",
-            progressLabel = "Listening progress",
-            progressHelper = "How many minutes this audiobook moved forward."
+            lengthLabelRes = R.string.add_session_audio_length_label,
+            lengthHelperRes = R.string.add_session_audio_length_helper,
+            progressLabelRes = R.string.add_session_audio_progress_label,
+            progressHelperRes = R.string.add_session_audio_progress_helper
         )
     }
 }

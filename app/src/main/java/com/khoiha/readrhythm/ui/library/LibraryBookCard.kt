@@ -21,10 +21,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import com.khoiha.readrhythm.R
 import com.khoiha.readrhythm.data.local.BookEntity
 import com.khoiha.readrhythm.data.local.ReadingFormat
 
@@ -42,14 +44,23 @@ fun LibraryBookCard(
         0f
     }
     val progressLabel = if (hasProgressTarget) {
-        "${book.progress.coerceAtLeast(0)} / ${book.totalUnits} ${unitLabel(book)}"
+        stringResource(
+            R.string.library_progress_with_total,
+            book.progress.coerceAtLeast(0),
+            book.totalUnits,
+            unitLabel(book)
+        )
     } else {
-        "${book.progress.coerceAtLeast(0)} ${unitLabel(book)} tracked"
+        stringResource(
+            R.string.library_progress_without_total,
+            book.progress.coerceAtLeast(0),
+            unitLabel(book)
+        )
     }
     val percentLabel = if (hasProgressTarget) {
-        "${(progress * 100).toInt()}% complete"
+        stringResource(R.string.library_percent_complete, (progress * 100).toInt())
     } else {
-        "No target set"
+        stringResource(R.string.library_no_target_set)
     }
 
     Card(
@@ -94,7 +105,7 @@ fun LibraryBookCard(
                         )
 
                         Text(
-                            text = book.author ?: "Unknown author",
+                            text = book.author ?: stringResource(R.string.common_unknown_author),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 1,
@@ -103,7 +114,7 @@ fun LibraryBookCard(
                     }
 
                     TextButton(onClick = { onDeleteBook(book) }) {
-                        Text("Remove")
+                        Text(stringResource(R.string.library_remove_action))
                     }
                 }
 
@@ -146,7 +157,7 @@ fun LibraryBookCard(
                         )
                     } else {
                         Text(
-                            text = "Add a target later to see completion.",
+                            text = stringResource(R.string.library_no_target_hint),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -172,7 +183,7 @@ private fun LibraryBookCover(
         if (thumbnailUrl != null) {
             AsyncImage(
                 model = thumbnailUrl,
-                contentDescription = "Cover for $title",
+                contentDescription = stringResource(R.string.common_cover_for, title),
                 modifier = Modifier
                     .fillMaxSize()
                     .clip(MaterialTheme.shapes.medium),
@@ -219,7 +230,7 @@ private fun CompletedBadge() {
         color = MaterialTheme.colorScheme.primaryContainer
     ) {
         Text(
-            text = "Completed",
+            text = stringResource(R.string.common_completed),
             modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onPrimaryContainer,
@@ -228,9 +239,10 @@ private fun CompletedBadge() {
     }
 }
 
+@Composable
 private fun unitLabel(book: BookEntity): String {
     return when (book.format) {
-        ReadingFormat.BOOK -> "pages"
-        ReadingFormat.AUDIOBOOK -> "min"
+        ReadingFormat.BOOK -> stringResource(R.string.common_pages)
+        ReadingFormat.AUDIOBOOK -> stringResource(R.string.common_min)
     }
 }

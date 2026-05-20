@@ -1,31 +1,34 @@
 package com.khoiha.readrhythm.navigation
 
+import androidx.annotation.StringRes
+import com.khoiha.readrhythm.R
+
 sealed class ReadRhythmRoute(
     val route: String,
-    val label: String,
+    @param:StringRes val labelRes: Int,
     val shortLabel: String
 ) {
     data object Library : ReadRhythmRoute(
         route = "library",
-        label = "Library",
+        labelRes = R.string.nav_library,
         shortLabel = "R"
     )
 
     data object Sessions : ReadRhythmRoute(
         route = "sessions",
-        label = "Sessions",
+        labelRes = R.string.nav_sessions,
         shortLabel = "S"
     )
 
     data object Discover : ReadRhythmRoute(
         route = "discover",
-        label = "Discover",
+        labelRes = R.string.nav_discover,
         shortLabel = "D"
     )
 
     data object Insights : ReadRhythmRoute(
         route = "insights",
-        label = "Insights",
+        labelRes = R.string.nav_insights,
         shortLabel = "I"
     )
 

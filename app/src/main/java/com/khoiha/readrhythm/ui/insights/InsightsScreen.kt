@@ -20,8 +20,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.khoiha.readrhythm.R
 import com.khoiha.readrhythm.data.WeeklyActivityDay
 import com.khoiha.readrhythm.ui.components.ReadRhythmEmptyState
 
@@ -34,15 +36,15 @@ fun InsightsScreen(
         uiState.errorMessage != null -> {
             ReadRhythmEmptyState(
                 iconText = "!",
-                title = "Insights could not load",
+                title = stringResource(R.string.insights_error_title),
                 message = uiState.errorMessage
             )
         }
         uiState.isEmpty -> {
             ReadRhythmEmptyState(
                 iconText = "I",
-                title = "Log sessions to see your rhythm",
-                message = "Open a title, add a reading or listening session, and your minutes, progress, and weekly activity will appear here."
+                title = stringResource(R.string.insights_empty_title),
+                message = stringResource(R.string.insights_empty_message)
             )
         }
         else -> InsightsContent(uiState = uiState)
@@ -60,7 +62,7 @@ private fun InsightsLoadingState() {
     ) {
         CircularProgressIndicator()
         Text(
-            text = "Loading insights...",
+            text = stringResource(R.string.insights_loading),
             modifier = Modifier.padding(top = 16.dp),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -73,10 +75,26 @@ private fun InsightsContent(
     uiState: InsightsUiState
 ) {
     val cards = listOf(
-        InsightCardData("Total Minutes", uiState.totalMinutes.toString(), "Time spent reading and listening"),
-        InsightCardData("Total Sessions", uiState.totalSessions.toString(), "Saved sessions"),
-        InsightCardData("Active Titles", uiState.activeTitles.toString(), "Still in progress"),
-        InsightCardData("Completed Titles", uiState.completedTitles.toString(), "Finished titles")
+        InsightCardData(
+            stringResource(R.string.insights_total_minutes),
+            uiState.totalMinutes.toString(),
+            stringResource(R.string.insights_total_minutes_description)
+        ),
+        InsightCardData(
+            stringResource(R.string.insights_total_sessions),
+            uiState.totalSessions.toString(),
+            stringResource(R.string.insights_total_sessions_description)
+        ),
+        InsightCardData(
+            stringResource(R.string.insights_active_titles),
+            uiState.activeTitles.toString(),
+            stringResource(R.string.insights_active_titles_description)
+        ),
+        InsightCardData(
+            stringResource(R.string.insights_completed_titles),
+            uiState.completedTitles.toString(),
+            stringResource(R.string.insights_completed_titles_description)
+        )
     )
 
     LazyVerticalGrid(
@@ -115,13 +133,13 @@ private fun WeeklyActivitySection(
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
-                    text = "Weekly Activity",
+                    text = stringResource(R.string.insights_weekly_activity),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.SemiBold
                 )
                 Text(
-                    text = "Minutes logged across the last 7 days",
+                    text = stringResource(R.string.insights_weekly_activity_description),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -241,10 +259,11 @@ private data class InsightCardData(
     val description: String
 )
 
+@Composable
 private fun weeklySummaryText(minutes: Int): String {
     return when (minutes) {
-        0 -> "No minutes logged this week yet."
-        1 -> "You logged 1 min this week."
-        else -> "You logged $minutes min this week."
+        0 -> stringResource(R.string.insights_weekly_no_minutes)
+        1 -> stringResource(R.string.insights_weekly_one_minute)
+        else -> stringResource(R.string.insights_weekly_minutes, minutes)
     }
 }

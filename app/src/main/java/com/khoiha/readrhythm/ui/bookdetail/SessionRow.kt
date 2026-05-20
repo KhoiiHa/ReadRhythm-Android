@@ -11,8 +11,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.khoiha.readrhythm.R
 import com.khoiha.readrhythm.data.local.BookEntity
 import com.khoiha.readrhythm.data.local.ReadingFormat
 import com.khoiha.readrhythm.data.local.ReadingSessionEntity
@@ -24,10 +26,14 @@ fun SessionRow(
     session: ReadingSessionEntity,
     book: BookEntity
 ) {
+    val progressUnit = when (book.format) {
+        ReadingFormat.BOOK -> stringResource(R.string.common_pages)
+        ReadingFormat.AUDIOBOOK -> stringResource(R.string.session_audio_progress_unit)
+    }
     val progressText = if (session.progressAmount > 0) {
-        "+${session.progressAmount} ${sessionProgressUnitLabel(book)}"
+        stringResource(R.string.session_progress_added, session.progressAmount, progressUnit)
     } else {
-        "No progress added"
+        stringResource(R.string.session_no_progress)
     }
 
     Surface(
@@ -44,7 +50,7 @@ fun SessionRow(
                 verticalArrangement = Arrangement.spacedBy(5.dp)
             ) {
                 Text(
-                    text = "${session.minutes} min",
+                    text = stringResource(R.string.session_minutes, session.minutes),
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Medium
@@ -82,11 +88,4 @@ fun SessionRow(
 
 private fun formatDate(timestamp: Long): String {
     return DateFormat.getDateInstance(DateFormat.MEDIUM).format(Date(timestamp))
-}
-
-private fun sessionProgressUnitLabel(book: BookEntity): String {
-    return when (book.format) {
-        ReadingFormat.BOOK -> "pages"
-        ReadingFormat.AUDIOBOOK -> "min progress"
-    }
 }

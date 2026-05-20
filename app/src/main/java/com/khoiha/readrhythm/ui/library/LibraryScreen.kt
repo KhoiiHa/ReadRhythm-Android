@@ -26,8 +26,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.khoiha.readrhythm.R
 import com.khoiha.readrhythm.data.local.BookEntity
 import com.khoiha.readrhythm.data.local.ReadingFormat
 import com.khoiha.readrhythm.ui.components.ReadRhythmEmptyState
@@ -53,14 +55,13 @@ fun LibraryScreen(
             uiState.books.isEmpty() -> {
                 ReadRhythmEmptyState(
                     iconText = "R",
-                    title = "Build your reading shelf",
-                    message = "Add your first book manually with the plus button, or use Discover to find one from Google Books."
+                    title = stringResource(R.string.library_empty_title),
+                    message = stringResource(R.string.library_empty_message)
                 )
             }
             else -> {
                 LibraryContentState(
                     books = uiState.filteredBooks,
-                    totalBooks = uiState.books.size,
                     searchQuery = uiState.searchQuery,
                     selectedFilter = uiState.selectedFilter,
                     onDeleteBook = { bookPendingDelete = it },
@@ -119,7 +120,7 @@ private fun LibraryLoadingState() {
     ) {
         CircularProgressIndicator()
         Text(
-            text = "Loading your library...",
+            text = stringResource(R.string.library_loading),
             modifier = Modifier.padding(top = 16.dp),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -131,8 +132,8 @@ private fun LibraryLoadingState() {
 private fun LibraryErrorState(message: String) {
     ReadRhythmEmptyState(
         iconText = "!",
-        title = "Library could not load",
-        message = "$message Try again after reopening the app."
+        title = stringResource(R.string.library_error_title),
+        message = stringResource(R.string.library_error_message, message)
     )
 }
 
@@ -147,21 +148,21 @@ private fun DeleteBookConfirmationDialog(
     AlertDialog(
         onDismissRequest = onCancel,
         title = {
-            Text(text = "Remove \"${book.title}\"?")
+            Text(text = stringResource(R.string.library_remove_title, book.title))
         },
         text = {
             Text(
-                text = "This also removes its sessions."
+                text = stringResource(R.string.library_remove_message)
             )
         },
         confirmButton = {
             Button(onClick = onConfirm) {
-                Text("Delete book")
+                Text(stringResource(R.string.library_remove_confirm))
             }
         },
         dismissButton = {
             TextButton(onClick = onCancel) {
-                Text("Cancel")
+                Text(stringResource(R.string.common_cancel))
             }
         }
     )
@@ -170,7 +171,6 @@ private fun DeleteBookConfirmationDialog(
 @Composable
 private fun LibraryContentState(
     books: List<BookEntity>,
-    totalBooks: Int,
     searchQuery: String,
     selectedFilter: LibraryFormatFilter,
     onDeleteBook: (BookEntity) -> Unit,
@@ -201,8 +201,8 @@ private fun LibraryContentState(
             item {
                 ReadRhythmEmptyState(
                     iconText = "R",
-                    title = "No matching titles",
-                    message = "Try another title or author, or switch the format filter across your $totalBooks saved titles."
+                    title = stringResource(R.string.library_no_matches_title),
+                    message = stringResource(R.string.library_no_matches_message)
                 )
             }
         }
@@ -241,7 +241,7 @@ private fun LibrarySearchAndFilter(
                 value = searchQuery,
                 onValueChange = onSearchQueryChange,
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text("Search library") },
+                label = { Text(stringResource(R.string.library_search_label)) },
                 singleLine = true
             )
 
@@ -249,17 +249,17 @@ private fun LibrarySearchAndFilter(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 LibraryFilterChip(
-                    label = "All",
+                    label = stringResource(R.string.library_filter_all),
                     selected = selectedFilter == LibraryFormatFilter.ALL,
                     onClick = { onFormatFilterChange(LibraryFormatFilter.ALL) }
                 )
                 LibraryFilterChip(
-                    label = "Books",
+                    label = stringResource(R.string.library_filter_books),
                     selected = selectedFilter == LibraryFormatFilter.BOOKS,
                     onClick = { onFormatFilterChange(LibraryFormatFilter.BOOKS) }
                 )
                 LibraryFilterChip(
-                    label = "Audiobooks",
+                    label = stringResource(R.string.library_filter_audiobooks),
                     selected = selectedFilter == LibraryFormatFilter.AUDIOBOOKS,
                     onClick = { onFormatFilterChange(LibraryFormatFilter.AUDIOBOOKS) }
                 )
