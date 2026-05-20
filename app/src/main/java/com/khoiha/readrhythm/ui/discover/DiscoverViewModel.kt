@@ -68,8 +68,10 @@ class DiscoverViewModel(
                 _uiState.update {
                     it.copy(
                         feedbackMessage = when (result) {
-                            AddDiscoverBookResult.Saved -> "Saved to library"
-                            AddDiscoverBookResult.AlreadyExists -> "Already in library"
+                            AddDiscoverBookResult.Saved ->
+                                "Saved to Library. You can now track sessions from your Library."
+                            AddDiscoverBookResult.AlreadyExists ->
+                                "This title is already in your Library."
                         },
                         errorMessage = null
                     )
