@@ -41,8 +41,8 @@ fun InsightsScreen(
         uiState.isEmpty -> {
             ReadRhythmEmptyState(
                 iconText = "I",
-                title = "Insights need a rhythm",
-                message = "Save a few sessions and this space will summarize your reading and listening pace."
+                title = "Log sessions to see your rhythm",
+                message = "Open a title, add a reading or listening session, and your minutes, progress, and weekly activity will appear here."
             )
         }
         else -> InsightsContent(uiState = uiState)

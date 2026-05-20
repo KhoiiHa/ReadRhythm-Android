@@ -48,8 +48,8 @@ fun LibraryScreen(
             uiState.books.isEmpty() -> {
                 ReadRhythmEmptyState(
                     iconText = "R",
-                    title = "Start your reading shelf",
-                    message = "Add a book or audiobook to begin tracking quiet progress over time."
+                    title = "Build your reading shelf",
+                    message = "Add your first book manually with the plus button, or use Discover to find one from Google Books."
                 )
             }
             else -> {
@@ -154,7 +154,7 @@ private fun LibraryContentState(
                 ReadRhythmEmptyState(
                     iconText = "R",
                     title = "No matching titles",
-                    message = "Try a different title, author, or format filter across your $totalBooks saved titles."
+                    message = "Try another title or author, or switch the format filter across your $totalBooks saved titles."
                 )
             }
         }

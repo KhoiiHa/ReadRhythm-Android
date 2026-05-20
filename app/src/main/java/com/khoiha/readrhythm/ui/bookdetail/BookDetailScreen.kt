@@ -453,13 +453,13 @@ private fun SessionsSection(
                     verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     Text(
-                        text = "No sessions logged yet",
+                        text = "Start tracking this title",
                         style = MaterialTheme.typography.titleSmall,
                         color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.Medium
                     )
                     Text(
-                        text = "Add a session after reading or listening to keep this title moving.",
+                        text = "Add a session after reading or listening to update progress and build your insights.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

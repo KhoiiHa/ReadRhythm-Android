@@ -84,15 +84,15 @@ fun DiscoverScreen(
             !uiState.hasSearched -> {
                 ReadRhythmEmptyState(
                     iconText = "D",
-                    title = "Search for your next title",
-                    message = "Find books from Google Books and inspect the basics before adding anything later."
+                    title = "Find your next read",
+                    message = "Search Google Books by title or author, then save a result to your local library."
                 )
             }
             uiState.results.isEmpty() -> {
                 ReadRhythmEmptyState(
                     iconText = "D",
                     title = "No results found",
-                    message = "Try a title, author, or a more specific search term."
+                    message = "Try a different title, author, or a more specific search term."
                 )
             }
             else -> DiscoverResults(
