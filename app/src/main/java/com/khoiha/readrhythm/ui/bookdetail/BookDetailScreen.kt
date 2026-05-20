@@ -132,7 +132,7 @@ private fun BookDetailContent(
     val percentText = if (hasProgressTarget) {
         "${(progress * 100).toInt()}% complete"
     } else {
-        "No target yet"
+        "No target set"
     }
 
     Column(
@@ -357,7 +357,7 @@ private fun ProgressSection(
                 )
             } else {
                 Text(
-                    text = "Set a target when you want completion tracking.",
+                    text = "Progress is tracked without a completion target.",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

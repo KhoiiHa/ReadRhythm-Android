@@ -49,7 +49,7 @@ fun LibraryBookCard(
     val percentLabel = if (hasProgressTarget) {
         "${(progress * 100).toInt()}% complete"
     } else {
-        "No target yet"
+        "No target set"
     }
 
     Card(
@@ -103,7 +103,7 @@ fun LibraryBookCard(
                     }
 
                     TextButton(onClick = { onDeleteBook(book) }) {
-                        Text("Delete")
+                        Text("Remove")
                     }
                 }
 

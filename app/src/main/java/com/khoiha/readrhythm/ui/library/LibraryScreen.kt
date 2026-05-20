@@ -26,6 +26,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.khoiha.readrhythm.data.local.BookEntity
 import com.khoiha.readrhythm.data.local.ReadingFormat
@@ -78,7 +79,8 @@ fun LibraryScreen(
         ) {
             Text(
                 text = "+",
-                style = MaterialTheme.typography.headlineSmall
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Medium
             )
         }
     }
@@ -145,11 +147,11 @@ private fun DeleteBookConfirmationDialog(
     AlertDialog(
         onDismissRequest = onCancel,
         title = {
-            Text(text = "Delete book?")
+            Text(text = "Remove \"${book.title}\"?")
         },
         text = {
             Text(
-                text = "Delete \"${book.title}\" from your Library? Its reading and listening sessions will be removed too."
+                text = "This also removes its sessions."
             )
         },
         confirmButton = {
