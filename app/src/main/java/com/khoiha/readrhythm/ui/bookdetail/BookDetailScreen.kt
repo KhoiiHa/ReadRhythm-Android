@@ -169,7 +169,10 @@ private fun BookDetailContent(
             percentText = percentText
         )
 
-        BookInfoSection(book = book)
+        BookInfoSection(
+            book = book,
+            sessionCount = sessions.size
+        )
 
         Button(
             onClick = { showAddSessionDialog = true },
@@ -364,7 +367,10 @@ private fun ProgressSection(
 }
 
 @Composable
-private fun BookInfoSection(book: BookEntity) {
+private fun BookInfoSection(
+    book: BookEntity,
+    sessionCount: Int
+) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.large,
@@ -382,6 +388,7 @@ private fun BookInfoSection(book: BookEntity) {
                 fontWeight = FontWeight.SemiBold
             )
             DetailInfoRow(label = "Format", value = formatLabel(book))
+            DetailInfoRow(label = "Activity", value = sessionCountLabel(sessionCount))
             DetailInfoRow(label = "Created", value = formatDate(book.createdAt))
         }
     }
@@ -491,5 +498,13 @@ private fun unitLabel(book: BookEntity): String {
     return when (book.format) {
         ReadingFormat.BOOK -> "pages"
         ReadingFormat.AUDIOBOOK -> "min"
+    }
+}
+
+private fun sessionCountLabel(count: Int): String {
+    return if (count == 1) {
+        "1 session logged"
+    } else {
+        "$count sessions logged"
     }
 }
