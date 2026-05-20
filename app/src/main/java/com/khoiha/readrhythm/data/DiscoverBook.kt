@@ -8,5 +8,6 @@ data class DiscoverBook(
     val firstAuthor: String?,
     val pageCount: Int?,
     val description: String?,
-    val thumbnailUrl: String?
+    val thumbnailUrl: String?,
+    val isInLibrary: Boolean = false
 )

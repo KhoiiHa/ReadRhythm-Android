@@ -7,8 +7,10 @@ import com.khoiha.readrhythm.data.AddDiscoverBookResult
 import com.khoiha.readrhythm.data.DiscoverBook
 import com.khoiha.readrhythm.data.DiscoverRepository
 import com.khoiha.readrhythm.data.ReadingRepository
+import com.khoiha.readrhythm.data.local.BookEntity
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
@@ -19,6 +21,12 @@ class DiscoverViewModel(
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(DiscoverUiState())
     val uiState: StateFlow<DiscoverUiState> = _uiState
+
+    private var libraryBooks: List<BookEntity> = emptyList()
+
+    init {
+        observeLibraryBooks()
+    }
 
     fun search(query: String) {
         val trimmedQuery = query.trim()
@@ -49,7 +57,7 @@ class DiscoverViewModel(
                 _uiState.value = DiscoverUiState(
                     isLoading = false,
                     hasSearched = true,
-                    results = results
+                    results = results.withLibraryState()
                 )
             } catch (error: Exception) {
                 _uiState.value = DiscoverUiState(
@@ -67,6 +75,7 @@ class DiscoverViewModel(
                 val result = readingRepository.addDiscoverBook(book)
                 _uiState.update {
                     it.copy(
+                        results = it.results.markBookAsInLibrary(book),
                         feedbackMessage = when (result) {
                             AddDiscoverBookResult.Saved ->
                                 "Saved to Library. You can now track sessions from your Library."
@@ -84,6 +93,19 @@ class DiscoverViewModel(
                     )
                 }
             }
+        }
+    }
+
+    private fun observeLibraryBooks() {
+        viewModelScope.launch {
+            readingRepository.observeBooks()
+                .catch { libraryBooks = emptyList() }
+                .collect { books ->
+                    libraryBooks = books
+                    _uiState.update {
+                        it.copy(results = it.results.withLibraryState())
+                    }
+                }
         }
     }
 
@@ -106,5 +128,45 @@ class DiscoverViewModel(
             }
             throw IllegalArgumentException("Unknown ViewModel class")
         }
+    }
+
+    private fun List<DiscoverBook>.withLibraryState(): List<DiscoverBook> {
+        return map { book ->
+            book.copy(
+                isInLibrary = libraryBooks.any { libraryBook ->
+                    libraryBook.matchesDiscoverBook(book)
+                }
+            )
+        }
+    }
+
+    private fun List<DiscoverBook>.markBookAsInLibrary(savedBook: DiscoverBook): List<DiscoverBook> {
+        return map { book ->
+            if (book.matchesDiscoverBook(savedBook)) {
+                book.copy(isInLibrary = true)
+            } else {
+                book
+            }
+        }
+    }
+
+    private fun BookEntity.matchesDiscoverBook(book: DiscoverBook): Boolean {
+        val sourceMatches = sourceId != null && sourceId == book.sourceId
+        val titleMatches = title.trim().equals(book.title.trim(), ignoreCase = true)
+        val authorMatches = author.cleanKey().equals(book.firstAuthor.cleanKey(), ignoreCase = true)
+
+        return sourceMatches || (titleMatches && authorMatches)
+    }
+
+    private fun DiscoverBook.matchesDiscoverBook(other: DiscoverBook): Boolean {
+        val sourceMatches = sourceId == other.sourceId
+        val titleMatches = title.trim().equals(other.title.trim(), ignoreCase = true)
+        val authorMatches = firstAuthor.cleanKey().equals(other.firstAuthor.cleanKey(), ignoreCase = true)
+
+        return sourceMatches || (titleMatches && authorMatches)
+    }
+
+    private fun String?.cleanKey(): String {
+        return this?.trim().orEmpty()
     }
 }

@@ -279,9 +279,18 @@ private fun DiscoverBookCard(
 
             OutlinedButton(
                 onClick = { onAddToLibrary(book) },
+                enabled = !book.isInLibrary,
                 modifier = Modifier.align(Alignment.End)
             ) {
-                Text(stringResource(R.string.discover_add_to_library))
+                Text(
+                    stringResource(
+                        if (book.isInLibrary) {
+                            R.string.discover_in_library
+                        } else {
+                            R.string.discover_add_to_library
+                        }
+                    )
+                )
             }
         }
     }

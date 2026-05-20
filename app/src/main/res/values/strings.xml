@@ -26,7 +26,7 @@
     <string name="library_error_message">%1$s Try again after reopening the app.</string>
     <string name="library_remove_title">Remove \"%1$s\"?</string>
     <string name="library_remove_message">This also removes its sessions.</string>
-    <string name="library_remove_confirm">Delete book</string>
+    <string name="library_remove_confirm">Remove book</string>
     <string name="library_no_matches_title">No matching titles</string>
     <string name="library_no_matches_message">Try another title or author, or switch the format filter.</string>
     <string name="library_search_label">Search library</string>
@@ -38,7 +38,7 @@
     <string name="library_progress_without_total">%1$d %2$s tracked</string>
     <string name="library_percent_complete">%1$d%% complete</string>
     <string name="library_no_target_set">No target set</string>
-    <string name="library_no_target_hint">Add a target later to see completion.</string>
+    <string name="library_no_target_hint">Progress is tracked without a completion target.</string>
 
     <string name="add_book_title">Add to library</string>
     <string name="add_book_title_label">Title</string>
@@ -58,6 +58,7 @@
     <string name="discover_author_by">by %1$s</string>
     <string name="discover_page_count">Pages: %1$d</string>
     <string name="discover_add_to_library">Add to Library</string>
+    <string name="discover_in_library">In Library</string>
 
     <string name="book_detail_default_title">Book Detail</string>
     <string name="book_detail_error_title">Book could not load</string>
