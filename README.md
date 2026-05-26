@@ -11,7 +11,7 @@ ReadRhythm is a native Android reading and listening tracker focused on calm ses
 
 ## Screenshots
 
-> Final screenshots can be added before publishing the portfolio.
+> Final portfolio screenshots will be added after UI capture.
 
 <p>
   <img src="/screenshots/library.png" width="220" alt="ReadRhythm Library screen" />
@@ -129,7 +129,7 @@ Optional lint check:
 
 ReadRhythm is an actively maintained portfolio-ready MVP focused on product clarity, local-first architecture, and modern Android UI development.
 
-Implemented areas:
+Implemented Features:
 
 - Local Library
 - Google Books Discover search
@@ -160,4 +160,4 @@ These decisions keep the product aligned with its core idea: a calm, local-first
 
 - Add an edit flow for local book metadata
 - Add a compact session timeline filter
-- Improve portfolio screenshots with curated demo data
+- Add lightweight session editing
